@@ -1,0 +1,12 @@
+# Dependency directory
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+
+# Optional: Log files, build outputs
+npm-debug.log*
+yarn-debug.log*
