@@ -7,7 +7,7 @@ import "@fontsource/inter/600.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
-
+const HomePage = lazy(() => import("./public/HomePage"));
 const Login = lazy(() => import("./public/Login"));
 
 function App() {
@@ -15,8 +15,8 @@ function App() {
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          {/* <Route path="/" element={<Home />} /> */}
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </Suspense>
     </Router>
