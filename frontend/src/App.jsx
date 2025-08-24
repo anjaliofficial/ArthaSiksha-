@@ -10,16 +10,18 @@ const HomePage = lazy(() => import("./public/HomePage"));
 const Login = lazy(() => import("./public/Login"));
 const Signup = lazy(() => import("./public/Signup"));
 const ForgotPassword = lazy(() => import("./public/ForgotPassword"));
+const LandingPage = lazy(() => import("./public/LandingPage"));
 
 function App() {
   return (
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/landingpage" element={<LandingPage />} />
         </Routes>
       </Suspense>
     </Router>
