@@ -1,0 +1,104 @@
+/* Signup.css */
+.signup-page {
+    height: 100vh;
+    width: 100%;
+    background: linear-gradient(135deg, #00c97f, #039850);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.signup-container {
+    width: 480px;            /* keep width */
+    background-color: #ffffff;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    padding: 35px 30px;      /* slightly less padding to reduce height */
+    box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.2);
+    animation: fadeUp 0.5s ease;
+}
+
+.signup-backBtn {
+    font-size: 28px;
+    color: #666;
+    margin-bottom: 15px;
+    transition: transform 0.3s;
+}
+.signup-backBtn:hover { transform: translateX(-4px); }
+
+.signup-logo {
+    height: 100px;            /* slightly smaller logo */
+    width: 100px;
+    margin: 0 auto 20px auto;
+    display: block;
+}
+
+.signup-input {
+    width: 100%;
+    height: 48px;             /* slightly shorter input boxes */
+    margin: 10px 0;
+    border-radius: 14px;
+    border: 1px solid #dcdcdc;
+    padding: 0 15px;
+    font-size: 15px;
+    background-color: #fafafa;
+    transition: all 0.3s;
+}
+.signup-input:focus {
+    outline: none;
+    border: 1px solid #00c97f;
+    box-shadow: 0 0 8px rgba(0, 201, 127, 0.3);
+    background-color: #ffffff;
+}
+
+.signupBtn {
+    width: 100%;
+    height: 50px;            /* slightly smaller button */
+    margin-top: 18px;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #B5F042, #9ae635);
+    color: #2d2d2d;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+}
+.signupBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(90deg, #a2db39, #8fd62f);
+}
+
+.signup-redirect {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 14px;
+    color: #656565;
+}
+.signup-redirect-link {
+    color: #83b422;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.signup-social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 20px;        /* slightly less spacing */
+}
+.signup-google-icon, .signup-facebook-icon {
+    font-size: 28px;
+    transition: transform 0.3s;
+}
+.signup-google-icon:hover, .signup-facebook-icon:hover {
+    transform: scale(1.1);
+}
+
+@keyframes fadeUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
