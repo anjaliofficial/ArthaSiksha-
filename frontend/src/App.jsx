@@ -6,11 +6,13 @@ import "@fontsource/inter/600.css";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
+
 const HomePage = lazy(() => import("./public/HomePage"));
 const Login = lazy(() => import("./public/Login"));
 const Signup = lazy(() => import("./public/Signup"));
 const ForgotPassword = lazy(() => import("./public/ForgotPassword"));
 const LandingPage = lazy(() => import("./public/LandingPage"));
+const Profile = lazy(() => import("./public/Profile")); // ✅ Correct import
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/landingpage" element={<LandingPage />} />
+          <Route path="/profile" element={<Profile />} />{" "}
+          {/* ✅ Use capital P */}
         </Routes>
       </Suspense>
     </Router>

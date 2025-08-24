@@ -38,7 +38,7 @@ const Signup = () => {
 
         <p className="signup-redirect">
           Already have an account?{" "}
-          <Link to="/" className="signup-redirect-link">
+          <Link to="/login" className="signup-redirect-link">
             Log In
           </Link>
         </p>
