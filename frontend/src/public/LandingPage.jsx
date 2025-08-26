@@ -1,24 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import logoWhite from "../assets/logoWhite.png";
 import "./LandingPage.css";
 
 import {
   FaGamepad,
-  FaClock,
-  FaCertificate,
-  FaMoneyBillWave,
-  FaGlobe,
-  FaMobileAlt,
-  FaRobot,
-  FaUsers,
-  FaChevronDown,
-  FaChevronUp,
+  FaChartLine,
+  FaPiggyBank,
   FaBook,
   FaPlay,
   FaAward,
   FaUsersCog,
-  FaChartLine,
-  FaPiggyBank,
+  FaChevronDown,
+  FaChevronUp,
+  FaUserCircle,
+  FaBell,
 } from "react-icons/fa";
 
 const faqData = [
@@ -66,8 +62,8 @@ const testimonials = [
 
 const LandingPage = () => {
   const [openIndex, setOpenIndex] = useState(null);
+  const navigate = useNavigate();
 
-  // References to scroll to sections
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const learnRef = useRef(null);
@@ -76,13 +72,9 @@ const LandingPage = () => {
   const faqRef = useRef(null);
   const ctaRef = useRef(null);
 
-  const scrollToSection = (ref) => {
+  const scrollToSection = (ref) =>
     ref.current.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  const toggleFAQ = (index) => setOpenIndex(openIndex === index ? null : index);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -97,10 +89,11 @@ const LandingPage = () => {
       { threshold: 0.2 }
     );
 
-    const elements = document.querySelectorAll(
-      ".feature-card, .how-card, .gam-card, .testimonial-card"
-    );
-    elements.forEach((el) => observer.observe(el));
+    document
+      .querySelectorAll(
+        ".feature-card, .how-card, .gam-card, .testimonial-card"
+      )
+      .forEach((el) => observer.observe(el));
   }, []);
 
   return (
@@ -114,21 +107,25 @@ const LandingPage = () => {
           <li onClick={() => scrollToSection(heroRef)}>Home</li>
           <li onClick={() => scrollToSection(featuresRef)}>Features</li>
           <li onClick={() => scrollToSection(learnRef)}>Learn</li>
-          <li onClick={() => scrollToSection(gamificationRef)}>Gamification</li>
-          <li onClick={() => scrollToSection(testimonialsRef)}>Testimonials</li>
-          <li onClick={() => scrollToSection(faqRef)}>FAQ</li>
+          <li onClick={() => navigate("/profile")}>
+            <FaUserCircle /> Profile
+          </li>
           <li>
-            <button
-              className="join-btn"
-              onClick={() => scrollToSection(ctaRef)}
-            >
+            <FaBell
+              size={18}
+              className="notification-icon"
+              onClick={() => navigate("/notifications")}
+            />
+          </li>
+          <li>
+            <button className="join-btn" onClick={() => navigate("/login")}>
               Join Free
             </button>
           </li>
         </ul>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="hero" ref={heroRef}>
         <div className="hero-text">
           <h1>अर्थशिक्षा (Artha Shiksha)</h1>
@@ -137,10 +134,7 @@ const LandingPage = () => {
             "Learn Finance the Fun Way"
           </p>
           <div className="hero-buttons">
-            <button
-              className="primary-btn"
-              onClick={() => scrollToSection(featuresRef)}
-            >
+            <button className="primary-btn" onClick={() => navigate("/login")}>
               Start Learning Free
             </button>
             <button
@@ -153,7 +147,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features */}
       <section className="features" ref={featuresRef}>
         <h2>Our Features</h2>
         <div className="features-grid">
@@ -175,14 +169,14 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* How it Works */}
       <section className="how-it-works" ref={learnRef}>
         <h2>How It Works</h2>
         <div className="how-cards">
           <div className="how-card">
             <FaBook size={30} />
             <h3>Choose Language</h3>
-            <p>Select your preferred language, Nepali or English.</p>
+            <p>Select your preferred language.</p>
           </div>
           <div className="how-card">
             <FaPlay size={30} />
@@ -202,7 +196,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Gamification Section */}
+      {/* Gamification */}
       <section className="gamification" ref={gamificationRef}>
         <h2>Gamification Highlights</h2>
         <div className="gamification-grid">
@@ -221,7 +215,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials */}
       <section className="testimonials" ref={testimonialsRef}>
         <h2>Testimonials</h2>
         <div className="testimonial-grid">
@@ -234,7 +228,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* FAQ */}
       <section className="faq" ref={faqRef}>
         <h2>Frequently Asked Questions</h2>
         {faqData.map((item, index) => (
@@ -252,11 +246,11 @@ const LandingPage = () => {
         ))}
       </section>
 
-      {/* Call to Action */}
+      {/* CTA */}
       <section className="cta" ref={ctaRef}>
         <h2>नेपाली: "आजै अर्थशिक्षा सुरु गर्नुहोस्!"</h2>
         <h3>English: "Start your finance journey today!"</h3>
-        <button className="primary-btn" onClick={() => scrollToSection(ctaRef)}>
+        <button className="primary-btn" onClick={() => navigate("/login")}>
           Join Now – Free
         </button>
       </section>

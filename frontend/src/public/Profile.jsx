@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import logoWhite from "../assets/logoWhite.png";
 import {
   FaUserCircle,
+  FaBell,
   FaCog,
-  FaSignOutAlt,
-  FaAward,
   FaCertificate,
   FaChartLine,
   FaTrophy,
@@ -13,6 +13,8 @@ import "./Profile.css";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+
+  // Profile state
   const [avatar, setAvatar] = useState("👩‍💻");
   const [username, setUsername] = useState("AnjaliBista");
   const [language, setLanguage] = useState("English");
@@ -39,7 +41,7 @@ const ProfilePage = () => {
     { lesson: "Quiz 2", score: 100 },
   ];
 
-  // Animate points counter
+  // Animate points
   useEffect(() => {
     let start = 0;
     const interval = setInterval(() => {
@@ -57,36 +59,35 @@ const ProfilePage = () => {
     <div className="profile-page">
       {/* Navbar */}
       <nav className="navbar">
-        <div className="logo">Artha Shiksha</div>
+        <div className="logo">
+          <img src={logoWhite} alt="Artha Shiksha Logo" className="logo-img" />
+        </div>
         <ul className="nav-links">
-          <li>
-            <Link to="/landingpage">Home</Link>
+          <li onClick={() => navigate("/landingpage")}>Home</li>
+          <li onClick={() => navigate("/features")}>Features</li>
+          <li onClick={() => navigate("/learn")}>Learn</li>
+          <li onClick={() => navigate("/gamification")}>Gamification</li>
+          <li onClick={() => navigate("/settings")}>
+            <FaCog size={20} /> Settings
           </li>
           <li>
-            <Link to="/features">Features</Link>
+            <FaUserCircle
+              size={24}
+              className="profile-icon"
+              onClick={() => navigate("/profile")}
+            />
           </li>
           <li>
-            <Link to="/learn">Learn</Link>
-          </li>
-          <li>
-            <Link to="/gamification">Gamification</Link>
-          </li>
-          <li className="profile-icon">
-            <FaUserCircle size={24} />
-            <div className="dropdown">
-              <p onClick={() => navigate("/profile")}>Profile</p>
-              <p>
-                <FaCog /> Settings
-              </p>
-              <p onClick={() => navigate("/login")}>
-                <FaSignOutAlt /> Logout
-              </p>
-            </div>
+            <FaBell
+              size={20}
+              className="notification-icon"
+              onClick={() => navigate("/notifications")}
+            />
           </li>
         </ul>
       </nav>
 
-      {/* Top Hero Section */}
+      {/* Profile Hero */}
       <section className="profile-hero dashboard-card">
         <div className="avatar-section">
           <div className="avatar">{avatar}</div>
@@ -181,31 +182,10 @@ const ProfilePage = () => {
             ))}
           </ul>
         </div>
-
-        {/* Leaderboard Snapshot */}
-        <div className="dashboard-card leaderboard">
-          <h3>Leaderboard</h3>
-          <p>Your Rank: 5 / 1200</p>
-          <p>College Rank: 2 / 50</p>
-        </div>
-
-        {/* Settings */}
-        <div className="dashboard-card settings">
-          <h3>Settings</h3>
-          <button>Change Password</button>
-          <button>Notification Preferences</button>
-        </div>
-
-        {/* Community */}
-        <div className="dashboard-card community">
-          <h3>Community</h3>
-          <button>Invite Friends</button>
-          <button>Discussion Forum</button>
-        </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
+      <footer>
         <div className="footer-content">
           <div className="footer-section">
             <h4>About</h4>
@@ -217,18 +197,10 @@ const ProfilePage = () => {
           <div className="footer-section">
             <h4>Quick Links</h4>
             <ul>
-              <li>
-                <Link to="/landingpage">Home</Link>
-              </li>
-              <li>
-                <Link to="/features">Features</Link>
-              </li>
-              <li>
-                <Link to="/learn">Learn</Link>
-              </li>
-              <li>
-                <Link to="/gamification">Gamification</Link>
-              </li>
+              <li onClick={() => navigate("/landingpage")}>Home</li>
+              <li onClick={() => navigate("/features")}>Features</li>
+              <li onClick={() => navigate("/learn")}>Learn</li>
+              <li onClick={() => navigate("/gamification")}>Gamification</li>
             </ul>
           </div>
           <div className="footer-section">
