@@ -1,4 +1,5 @@
 import { IoNotificationsCircleSharp } from "react-icons/io5";
+import { FaPlay } from "react-icons/fa6";
 import pfp from '../assets/pfp.png';
 import logo from '../assets/logoWhite.png';
 import './HomePage.css';
@@ -8,7 +9,7 @@ const HomePage = () => {
         <div className="whole-home-page">
             <div className="navbar">
                 <div className="left">
-                    <a href="#" className="logo"><img src={logo} alt="logo"/></a>
+                    <a href="#" className="logo"><img src={logo} alt="logo" /></a>
                 </div>
                 <div className="right">
                     <ul>
@@ -23,63 +24,68 @@ const HomePage = () => {
 
             <div className="line"></div>
 
-      <div className="welcoming">
-        <h1>Welcome, User</h1>
-        <p>You've completed 3/10 modules</p>
-        <progress value="70" max="100"></progress>
-        <div className="two-sides">
-          <div className="mission">
-            <h3>Today's Mission</h3>
-            <video></video>
-          </div>
-          <div className="stats">
-            <h3>Quick Stats</h3>
-            <div className="points-streak">
-              <div className="points">
-                <h6>Points</h6>
-                <p>250</p>
-              </div>
-              <div className="line"></div>
-              <div className="streak">
-                <h6>Streak</h6>
-                <p>5 days</p>
-              </div>
+            <div className="top-three">
+
+                <div className="welcoming">
+                    <h1 className="welcomeText">Welcome, User</h1>
+                    <p className="modules-text">You've completed 3/10 modules</p>
+                    <div class="progress-container">
+                        <div class="progress-bar">70%</div>
+                    </div>
+                    <div className="two-sides">
+                        <div className="mission">
+                            <h3 className="mission-header">Today's Mission</h3>
+                            <div className="video-mission"><FaPlay /></div>
+                        </div>
+                        <div className="stats">
+                            <h3 className="stats-header">Quick Stats</h3>
+                            <div className="points-streak">
+                                <div className="pointsCol">
+                                    <h6>Points</h6>
+                                    <p>250</p>
+                                </div>
+                                <div className="line-stats">|</div>
+                                <div className="streakCol">
+                                    <h6>Streak</h6>
+                                    <p>5 days</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="recom-lessons">
+                    <h2>Recommended Lessons</h2>
+                    <div className="lessons">
+                        <h6>How to budget pocket money?</h6>
+                        {/*the chevron right icon*/}
+                    </div>
+                    <div className="lessons">
+                        <h6>How to budget pocket money?</h6>
+                        {/*the chevron right icon*/}
+                    </div>
+                    <div className="lessons">
+                        <h6>How to budget pocket money?</h6>
+                        {/*the chevron right icon*/}
+                    </div>
+                </div>
+                <div className="notification-contents">
+                    <h2>Notifications</h2>
+                    <div className="not-content">
+                        <p>New Challenge Unlocked</p>
+                    </div>
+                    <div className="not-content">
+                        <p>New Challenge Unlocked</p>
+                    </div>
+                    <div className="not-content">
+                        <p>New Challenge Unlocked</p>
+                    </div>
+                    <div className="not-content">
+                        <p>New Challenge Unlocked</p>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div className="recom-lessons">
-        <h2>Recommended Lessons</h2>
-        <div className="lessons">
-          <h6>How to budget pocket money?</h6>
-          {/*the chevron right icon*/}
-        </div>
-        <div className="lessons">
-          <h6>How to budget pocket money?</h6>
-          {/*the chevron right icon*/}
-        </div>
-        <div className="lessons">
-          <h6>How to budget pocket money?</h6>
-          {/*the chevron right icon*/}
-        </div>
-      </div>
-      <div className="notification-contents">
-        <h2>Notifications</h2>
-        <div className="not-content">
-          <p>New Challenge Unlocked</p>
-        </div>
-        <div className="not-content">
-          <p>New Challenge Unlocked</p>
-        </div>
-        <div className="not-content">
-          <p>New Challenge Unlocked</p>
-        </div>
-        <div className="not-content">
-          <p>New Challenge Unlocked</p>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default HomePage;
