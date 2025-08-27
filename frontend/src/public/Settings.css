@@ -1,0 +1,194 @@
+/* General */
+body, html, .settings-page {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9f9;
+  scroll-behavior: smooth;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.logo-img {
+  height: 50px;
+  object-fit: contain;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.nav-links li {
+  cursor: pointer;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s, transform 0.3s;
+}
+
+.nav-links li:hover {
+  color: #9acc38;
+  transform: scale(1.05);
+}
+
+/* Header */
+.settings-header {
+  text-align: center;
+  padding: 80px 20px 40px 20px;
+}
+
+.settings-header h1 { font-size: 40px; margin-bottom: 10px; }
+.settings-header p { font-size: 18px; color: #555; }
+
+/* Settings Grid */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin: 40px 60px;
+}
+
+.settings-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.settings-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.settings-card h3 { margin-bottom: 15px; color: #2c3e50; }
+.settings-card input, .settings-card select {
+  width: 90%;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+.settings-card label {
+  display: block;
+  margin: 8px 0;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Small Buttons */
+.small-btn {
+  background-color: #B5F042;
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 8px;
+  transition: background 0.3s, transform 0.3s;
+}
+.small-btn:hover { background-color: #9acc38; transform: scale(1.05); }
+
+/* Logout Button */
+.logout-btn { background-color: #f56565; }
+.logout-btn:hover { background-color: #e53e3e; }
+
+/* Theme Toggle */
+.theme-toggle {
+  position: relative;
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 24px;
+  width: 140px;
+  background: #f0f0f0;
+  cursor: pointer;
+  overflow: hidden;
+  height: 36px;
+  margin: 8px auto 0;
+}
+.toggle-option {
+  flex: 1;
+  text-align: center;
+  line-height: 36px;
+  z-index: 2;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  transition: color 0.3s;
+}
+.toggle-option.active { color: #fff; }
+.toggle-indicator {
+  position: absolute;
+  top: 2px;
+  width: 50%;
+  height: 32px;
+  background-color: #B5F042;
+  border-radius: 20px;
+  transition: transform 0.3s;
+  z-index: 1;
+}
+.toggle-indicator.left { transform: translateX(0%); }
+.toggle-indicator.right { transform: translateX(100%); }
+
+/* Footer */
+footer {
+  padding: 60px 20px;
+  background-color: #1f2937;
+  text-align: center;
+  font-size: 14px;
+  color: #d1d5db;
+}
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 30px;
+}
+.footer-section { flex: 1 1 200px; }
+.footer-section h4 { margin-bottom: 10px; color: #f9fafb; }
+.footer-section p, .footer-section li { margin-bottom: 6px; color: #d1d5db; list-style: none; cursor: pointer; }
+.footer-section input {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #4b5563;
+  width: 70%;
+  margin-bottom: 8px;
+  background-color: #111827;
+  color: #f9fafb;
+}
+.footer-section input::placeholder { color: #9ca3af; }
+.subscribe-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background-color: #B5F042;
+  color: #1f2937;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+.subscribe-btn:hover { background-color: #9acc38; }
+.footer-bottom { margin-top: 30px; font-size: 13px; color: #9ca3af; }
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .settings-grid { grid-template-columns: 1fr; margin: 20px; }
+  .navbar { flex-wrap: wrap; padding: 15px 20px; }
+}
