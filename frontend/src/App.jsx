@@ -14,7 +14,7 @@ const ForgotPassword = lazy(() => import("./public/ForgotPassword"));
 const LandingPage = lazy(() => import("./public/LandingPage"));
 const Profile = lazy(() => import("./public/Profile"));
 const Settings = lazy(() => import("./public/Settings"));
-const Navbar = lazy(() => import("./components/navbar"));
+const EditProfile = lazy(() => import("./public/EditProfile"));
 
 function App() {
   return (
@@ -23,13 +23,13 @@ function App() {
         <Routes>
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/navbar" element={<Navbar />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/profile" element={<Profile />} />{" "}
           {/* ✅ Use capital P */}
+          <Route path="/editprofile" element={<EditProfile />} />
         </Routes>
       </Suspense>
     </Router>
