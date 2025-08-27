@@ -1,4 +1,6 @@
-import React from 'react';
+import { IoNotificationsCircleSharp } from "react-icons/io5";
+import pfp from '../assets/pfp.png';
+import logo from '../assets/logoWhite.png';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -6,7 +8,7 @@ const HomePage = () => {
         <div className="whole-home-page">
             <div className="navbar">
                 <div className="left">
-                    <a href="#"><img src="" alt="logo"/></a>
+                    <a href="#" className="logo"><img src={logo} alt="logo"/></a>
                 </div>
                 <div className="right">
                     <ul>
@@ -14,10 +16,12 @@ const HomePage = () => {
                         <li>Lessons</li>
                         <li>Leaderboards</li>
                     </ul>
-                    <a href="#">{/*bell*/}</a>
-                    <a href="#"><img src="" alt="profile-pic"></img></a>
+                    <a href="#" className="notification-bell"><IoNotificationsCircleSharp /></a>
+                    <a className="profile" href="#"><img src={pfp} alt="profile-pic"></img></a>
                 </div>
             </div>
+
+            <div className="line"></div>
 
             <div className="welcoming">
                 <h1>Welcome, User</h1>
