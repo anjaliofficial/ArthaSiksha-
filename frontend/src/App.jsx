@@ -29,7 +29,6 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/profile" element={<Profile />} />{" "}
-          {/* ✅ Use capital P */}
         </Routes>
       </Suspense>
     </Router>
