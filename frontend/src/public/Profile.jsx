@@ -1,22 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import logoWhite from "../assets/logoWhite.png";
+import React, { useState, useEffect } from "react";
+import "./Profile.css";
 import {
-  FaUserCircle,
-  FaBell,
   FaCog,
+  FaBell,
+  FaTrophy,
   FaCertificate,
   FaChartLine,
-  FaTrophy,
 } from "react-icons/fa";
-import "./Profile.css";
+import { Link } from "react-router-dom";
+import logo from "../assets/logoWhite.png";
 
-const ProfilePage = () => {
-  const navigate = useNavigate();
-
-  // Profile state
+const Profile = () => {
   const [avatar, setAvatar] = useState("👩‍💻");
-  const [username, setUsername] = useState("AnjaliBista");
+  const [username] = useState("John Doe");
   const [language, setLanguage] = useState("English");
   const points = 1200;
   const [animatedPoints, setAnimatedPoints] = useState(0);
@@ -59,36 +55,37 @@ const ProfilePage = () => {
     <div className="profile-page">
       {/* Navbar */}
       <nav className="navbar">
-        <div className="logo">
-          <img src={logoWhite} alt="Artha Shiksha Logo" className="logo-img" />
-        </div>
+        <Link to="/">
+          <img src={logo} alt="Logo" className="logo-img" />
+        </Link>
         <ul className="nav-links">
-          <li onClick={() => navigate("/landingpage")}>Home</li>
-          <li onClick={() => navigate("/features")}>Features</li>
-          <li onClick={() => navigate("/learn")}>Learn</li>
-          <li onClick={() => navigate("/gamification")}>Gamification</li>
-          <li onClick={() => navigate("/settings")}>
-            <FaCog size={20} /> Settings
+          <li>
+            <Link to="/home">Home</Link>
           </li>
           <li>
-            <FaUserCircle
-              size={24}
-              className="profile-icon"
-              onClick={() => navigate("/profile")}
-            />
+            <Link to="/features">Features</Link>
           </li>
           <li>
-            <FaBell
-              size={20}
-              className="notification-icon"
-              onClick={() => navigate("/notifications")}
-            />
+            <Link to="/learn">Learn</Link>
+          </li>
+          <li>
+            <Link to="/about">About</Link>
+          </li>
+          <li>
+            <Link to="/notifications">
+              <FaBell size={22} className="notification-icon" />
+            </Link>
+          </li>
+          <li>
+            <Link to="/settings">
+              <FaCog size={22} className="profile-icon" />
+            </Link>
           </li>
         </ul>
       </nav>
 
       {/* Profile Hero */}
-      <section className="profile-hero dashboard-card">
+      <section className="profile-hero">
         <div className="avatar-section">
           <div className="avatar">{avatar}</div>
           <div className="avatar-options">
@@ -99,9 +96,9 @@ const ProfilePage = () => {
         </div>
         <div className="user-info">
           <h2>{username}</h2>
-          <p>Email: user@example.com</p>
+          <p>Email: johndoe@email.com</p>
           <div className="language-select">
-            Language:
+            Language:{" "}
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
@@ -114,10 +111,10 @@ const ProfilePage = () => {
         </div>
       </section>
 
-      {/* Dashboard Grid */}
+      {/* Dashboard */}
       <section className="dashboard-grid">
         {/* Progress Overview */}
-        <div className="dashboard-card progress-overview">
+        <div className="dashboard-card">
           <h3>
             <FaChartLine /> Learning Progress
           </h3>
@@ -148,7 +145,7 @@ const ProfilePage = () => {
         </div>
 
         {/* Badges & Certificates */}
-        <div className="dashboard-card achievements">
+        <div className="dashboard-card">
           <h3>
             <FaTrophy /> Badges & Certificates
           </h3>
@@ -197,10 +194,10 @@ const ProfilePage = () => {
           <div className="footer-section">
             <h4>Quick Links</h4>
             <ul>
-              <li onClick={() => navigate("/landingpage")}>Home</li>
-              <li onClick={() => navigate("/features")}>Features</li>
-              <li onClick={() => navigate("/learn")}>Learn</li>
-              <li onClick={() => navigate("/gamification")}>Gamification</li>
+              <li>Home</li>
+              <li>Features</li>
+              <li>Learn</li>
+              <li>Gamification</li>
             </ul>
           </div>
           <div className="footer-section">
@@ -211,7 +208,7 @@ const ProfilePage = () => {
           <div className="footer-section">
             <h4>Newsletter</h4>
             <input type="email" placeholder="Your email" />
-            <button>Subscribe</button>
+            <button className="subscribe-btn">Subscribe</button>
           </div>
         </div>
         <div className="footer-bottom">
@@ -222,4 +219,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default Profile;
