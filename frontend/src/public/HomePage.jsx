@@ -1,7 +1,10 @@
 import { IoNotificationsCircleSharp } from "react-icons/io5";
 import { FaPlay } from "react-icons/fa6";
+import { FaChevronRight } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import pfp from '../assets/pfp.png';
 import logo from '../assets/logoWhite.png';
+import Footer from '../components/footer'
 import './HomePage.css';
 
 const HomePage = () => {
@@ -57,15 +60,15 @@ const HomePage = () => {
                     <h2>Recommended Lessons</h2>
                     <div className="lessons">
                         <h6>How to budget pocket money?</h6>
-                        {/*the chevron right icon*/}
+                        <FaChevronRight />
                     </div>
                     <div className="lessons">
                         <h6>How to budget pocket money?</h6>
-                        {/*the chevron right icon*/}
+                        <FaChevronRight />
                     </div>
                     <div className="lessons">
                         <h6>How to budget pocket money?</h6>
-                        {/*the chevron right icon*/}
+                        <FaChevronRight />
                     </div>
                 </div>
                 <div className="notification-contents">
@@ -84,6 +87,76 @@ const HomePage = () => {
                     </div>
                 </div>
             </div>
+            <div className="btm-two">
+                <div className="leaderboard-preview">
+                    <h2>Leaderboard</h2>
+                    <div className="leads">
+                        <p>1. Anna Roberts</p>
+                        <p>500 XP</p>
+                        <p>🏆 1st</p>
+                    </div>
+                    <div className="leads">
+                        <p>2. Cubby</p>
+                        <p>450 XP</p>
+                        <p>🏆 2nd</p>
+                    </div>
+                    <div className="leads">
+                        <p>3. Appu Cutiee</p>
+                        <p>430 XP</p>
+                        <p>🏆 3rd</p>
+                    </div>
+                    <div className="leads">
+                        <p>4. John Smith</p>
+                        <p>400 XP</p>
+                        <p>🏆 4th</p>
+                    </div>
+                    <div className="empty-btn">
+                        <div className="area"></div>
+                        <div className="full-leads-btn">
+                            <button>See Full Leaderboard <FaArrowRight /></button>
+                        </div>
+                    </div>
+                </div>
+                <div className="events-tips">
+                    <div className="events">
+                        <h2>Upcoming Events</h2>
+                        <div className="quiz-thing">
+                            <h4>Weekly Quiz</h4>
+                            <p>2 days</p>
+                        </div>
+                        <div className="quiz-thing">
+                            <h4>Weekly Quiz</h4>
+                            <p>2 days</p>
+                        </div>
+                        <div className="quiz-thing">
+                            <h4>Weekly Quiz</h4>
+                            <p>2 days</p>
+                        </div>
+                    </div>
+                    <div className="tip-line"></div>
+                    <div className="again-two">
+                        <div className="finance-tip">
+                            <h2>Finance Tip</h2>
+                            <p>Set a budget for your weekly expenses</p>
+                        </div>
+                        <div className="badges">
+                            <h2>Badges</h2>
+                            <div className="more-badges">
+                                <div className="badgeArea">
+                                    <img src="" alt="badge-img" className="image-badges" />
+                                    <p>Budget Boss</p>
+                                </div>
+                                <div className="badgeArea">
+                                    <img src="" alt="badge-img" className="image-badges" />
+                                    <p>Budget Boss</p>
+                                </div>
+                            </div>
+                            <p>+ See all badges</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <Footer/>
         </div>
     );
 };

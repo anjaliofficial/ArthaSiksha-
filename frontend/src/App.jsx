@@ -14,6 +14,8 @@ const ForgotPassword = lazy(() => import("./public/ForgotPassword"));
 const LandingPage = lazy(() => import("./public/LandingPage"));
 const Profile = lazy(() => import("./public/Profile"));
 const Settings = lazy(() => import("./public/Settings"));
+const Navbar = lazy(() => import("./components/navbar"));
+const Footer = lazy(() => import("./components/footer"));
 const EditProfile = lazy(() => import("./public/EditProfile"));
 const Notification = lazy(() => import("./public/Notification"));
 
@@ -24,6 +26,8 @@ function App() {
         <Routes>
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/navbar" element={<Navbar />} />
+          <Route path="/footer" element={<Footer />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/settings" element={<Settings />} />
