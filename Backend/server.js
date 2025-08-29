@@ -1,16 +1,14 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const pg = require('pg');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 const pool = require('./db');
+
+dotenv.config();
 
 const app = express();
 
-app.get('/users', async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM users");
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Database error");
-  }
-});
+app.use(express.json());
 
 app.listen(3000, () => console.log("🚀 Server running on port 3000"));
