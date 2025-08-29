@@ -31,7 +31,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/landingpage" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/profile" element={<Profile />} />{" "}
           {/* ✅ Use capital P */}
           <Route path="/editprofile" element={<EditProfile />} />
