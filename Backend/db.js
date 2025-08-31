@@ -10,12 +10,4 @@ const pool = new Pool({
   ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : false
 });
 
-// optional: test connection
-pool.connect()
-  .then(client => {
-    console.log("✅ Connected to Aiven PostgreSQL");
-    client.release();
-  })
-  .catch(err => console.error("❌ DB connection error", err.stack));
-
 module.exports = pool;
