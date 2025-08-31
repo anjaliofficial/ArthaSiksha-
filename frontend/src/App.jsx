@@ -20,6 +20,8 @@ const EditProfile = lazy(() => import("./public/EditProfile"));
 const Notifications = lazy(() => import("./public/Notifications"));
 const AdminDashboard = lazy(() => import("./public/AdminDashboard"));
 const Feedback = lazy(() => import("./public/Feedback"));
+const ModulesPage = lazy(() => import("./public/Modulespage"));
+const QuizPage = lazy(() => import("./public/QuizePage"));
 
 function App() {
   return (
@@ -40,6 +42,8 @@ function App() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/modules" element={<ModulesPage />} />
+          <Route path="/quizes" element={<QuizPage />} />
         </Routes>
       </Suspense>
     </Router>
