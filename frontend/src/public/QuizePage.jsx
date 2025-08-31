@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import logo from "../assets/logoWhite.png";
-import "./QuizPage.css";
+import "./QuizePage.css";
 
 const quizData = {
   1: {
@@ -63,7 +63,17 @@ const quizData = {
 
 const QuizPage = () => {
   const { moduleId } = useParams();
-  const quiz = quizData[moduleId];
+  const quiz = quizData[Number(moduleId)]; // convert moduleId to number
+
+  if (!quiz) {
+    return (
+      <div className="quiz-page">
+        <h2>❌ Quiz not found</h2>
+        <Link to="/learn">Back to Modules</Link>
+      </div>
+    );
+  }
+
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
