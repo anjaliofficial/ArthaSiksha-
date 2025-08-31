@@ -1,0 +1,171 @@
+/* General Page */
+.feedback-page {
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.nav-links li { font-weight: 500; transition: 0.3s; }
+.nav-links li:hover { color: #9acc38; transform: scale(1.05); }
+
+.logo-img { height: 50px; object-fit: contain; }
+
+/* Feedback Form Container */
+.feedback-container {
+  max-width: 800px;
+  margin: 40px auto;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+
+.feedback-container h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.feedback-form label {
+  font-weight: 600;
+}
+
+.feedback-form select, 
+.feedback-form textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  width: 100%;
+}
+
+.feedback-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.submit-btn {
+  background-color: #B5F042;
+  color: #1f2937;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.submit-btn:hover { background-color: #9acc38; }
+
+.success-msg {
+  color: #27ae60;
+  margin-top: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Past Feedbacks */
+.past-feedbacks {
+  margin-top: 40px;
+}
+
+.past-feedbacks h3 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.feedback-list {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feedback-card {
+  background-color: #f0f0f0;
+  padding: 12px 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fb-category { font-weight: 600; color: #9acc38; margin-right: 10px; }
+.fb-message { flex: 1; margin: 5px 0; }
+.fb-date { font-size: 0.8rem; color: #555; }
+
+/* Footer */
+footer {
+  padding: 60px 20px;
+  background-color: #1f2937;
+  color: #d1d5db;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 30px;
+}
+
+.footer-section { flex: 1 1 200px; }
+.footer-section h4 { margin-bottom: 10px; color: #f9fafb; }
+.footer-section p, .footer-section li { margin-bottom: 6px; cursor: pointer; }
+.footer-section input {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #4b5563;
+  width: 70%;
+  margin-bottom: 8px;
+  background-color: #111827;
+  color: #f9fafb;
+}
+.footer-section input::placeholder { color: #9ca3af; }
+.subscribe-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background-color: #B5F042;
+  color: #1f2937;
+  cursor: pointer;
+  font-weight: 600;
+}
+.subscribe-btn:hover { background-color: #9acc38; }
+
+.footer-bottom {
+  margin-top: 30px;
+  font-size: 13px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .navbar { flex-wrap: wrap; padding: 15px 20px; }
+  .feedback-container { margin: 20px; padding: 20px; }
+  .footer-content { flex-direction: column; align-items: center; gap: 20px; }
+}

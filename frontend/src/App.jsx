@@ -18,6 +18,8 @@ const Navbar = lazy(() => import("./components/navbar"));
 const Footer = lazy(() => import("./components/footer"));
 const EditProfile = lazy(() => import("./public/EditProfile"));
 const Notifications = lazy(() => import("./public/Notifications"));
+const AdminDashboard = lazy(() => import("./public/AdminDashboard"));
+const Feedback = lazy(() => import("./public/Feedback"));
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
           {/* ✅ Use capital P */}
           <Route path="/editprofile" element={<EditProfile />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/admindashboard" element={<AdminDashboard />} />
+          <Route path="/feedback" element={<Feedback />} />
         </Routes>
       </Suspense>
     </Router>

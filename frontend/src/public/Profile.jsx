@@ -11,12 +11,21 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logoWhite.png";
 
 const Profile = () => {
+  // Avatar
   const [avatar, setAvatar] = useState("👩‍💻");
-  const [username] = useState("John Doe");
+
+  // User info placeholders (replace with backend data)
+  const [username, setUsername] = useState("John Doe");
+  const [email, setEmail] = useState("johndoe@email.com");
+  const [age, setAge] = useState(25);
+  const [occupation, setOccupation] = useState("Student");
   const [language, setLanguage] = useState("English");
+
+  // Points
   const points = 1200;
   const [animatedPoints, setAnimatedPoints] = useState(0);
 
+  // Badges and Certificates
   const badges = [
     { name: "Beginner Saver", emoji: "🏆" },
     { name: "Budget Master", emoji: "💰" },
@@ -29,6 +38,7 @@ const Profile = () => {
     "Budgeting 101",
   ];
 
+  // Recent Activities
   const recentActivities = [
     { lesson: "Saving Basics", score: 95 },
     { lesson: "Quiz 1", score: 88 },
@@ -96,7 +106,9 @@ const Profile = () => {
         </div>
         <div className="user-info">
           <h2>{username}</h2>
-          <p>Email: johndoe@email.com</p>
+          <p>Email: {email}</p>
+          <p>Age: {age}</p>
+          <p>Occupation: {occupation}</p>
           <div className="language-select">
             Language:{" "}
             <select
@@ -113,7 +125,7 @@ const Profile = () => {
 
       {/* Dashboard */}
       <section className="dashboard-grid">
-        {/* Progress Overview */}
+        {/* Learning Progress */}
         <div className="dashboard-card">
           <h3>
             <FaChartLine /> Learning Progress
