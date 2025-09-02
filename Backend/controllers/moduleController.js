@@ -26,4 +26,22 @@ const getModuleById = async(req, res) => {
     }
 }
 
-module.exports = { getAllModules, getModuleById };
+const createModule = async (req, res) => {
+    const { title, description, content } = req.body;
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admins only.' });
+    }
+    try {
+        const newModule = await pool.query(
+            'INSERT into modules (title, description, content) VALUES ($1, $2, $3) RETURNING *',
+            [title, description, content]
+        )
+        res.status(201).json({ module: newModule.rows[0] });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+module.exports = { getAllModules, getModuleById, createModule };

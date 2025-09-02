@@ -54,12 +54,12 @@ const login = async (req, res) => {
         if (!isMatch) 
             return res.status(401).json({ message: 'Invalid credentials' });
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
         res.status(200).json({ 
             message: 'Login successful', 
             token, 
-            user: { id: user.id, username: user.username, email: user.email } 
+            user: { id: user.id, role: user.role, username: user.username, email: user.email } 
         });
     } catch (err) {
         console.error(err);
