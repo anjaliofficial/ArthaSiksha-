@@ -65,4 +65,20 @@ const editModule = async (req, res) => {
     }
 }
 
-module.exports = { getAllModules, getModuleById, createModule, editModule };
+const deleteModule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (req.user.role !== 'admin'){
+            return res.status(403).json({message: 'Access denied. Admins only.'})
+        }
+        const deletedModule = await pool.query('DELETE FROM modules WHERE id=$1 RETURNING *', [id])
+        if (deletedModule.rows.length === 0)
+            return res.status(404).json({ message: 'Module not found' });
+        res.status(200).json({ message: 'Module deleted', module: deletedModule.rows[0] });
+    } catch (error) {
+        console.error(error); 
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule };
