@@ -44,4 +44,25 @@ const createModule = async (req, res) => {
     }
 }
 
-module.exports = { getAllModules, getModuleById, createModule };
+const editModule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, content } = req.body;
+        if (req.user.role !== 'admin'){
+            return res.status(403).json({message: 'Access denied. Admins only.'})
+        }
+        const updatedModule = await pool.query(
+            'UPDATE modules SET title = COALESCE($1, title), description = COALESCE($2, description), content = COALESCE($3, content), updated_at = NOW() WHERE id=$4 RETURNING *',
+            [title, description, content, id]
+        )
+        if (updatedModule.rows.length === 0)
+            return res.status(404).json({ message: 'Module not found' });
+
+        res.status(200).json({ module: updatedModule.rows[0] });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+module.exports = { getAllModules, getModuleById, createModule, editModule };
