@@ -81,4 +81,30 @@ const deleteModule = async (req, res) => {
     }
 }
 
-module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule };
+const updateModuleProgress = async (req, res) => {
+    try {
+        const { moduleId } = req.params;
+        const { progressPercent } = req.body;
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            'INSERT INTO moduleprogress (user_id, module_id, progress_percent, completed) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, module_id) DO UPDATE SET progress_percent = $3, completed = $4',
+            [userId, moduleId, progressPercent, progressPercent === 100]
+        );
+
+        res.status(200).json({ message: 'Progress updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+const trackModuleProgress = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
+module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule, updateModuleProgress, trackModuleProgress };
