@@ -99,12 +99,24 @@ const updateModuleProgress = async (req, res) => {
     }
 }
 
-const trackModuleProgress = async (req, res) => {
+const completeModule = async (req, res) => {
     try {
-        
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            'UPDATE moduleprogress SET completed = TRUE, progress_percent = 100, updated_at = NOW() WHERE user_id = $1 AND module_id = $2 RETURNING *',
+            [userId, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Progress record not found' });
+        }
+        res.status(200).json({ message: 'Module marked as completed', progress: result.rows[0] });
     } catch (error) {
-        
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 }
 
-module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule, updateModuleProgress, trackModuleProgress };
+module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule, updateModuleProgress, completeModule };
