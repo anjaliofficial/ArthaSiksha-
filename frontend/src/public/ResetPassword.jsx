@@ -1,36 +1,20 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5"; // icons
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import "./ForgotPassword.css";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // toggle state
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [redirecting, setRedirecting] = useState(false); // new state
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const email = searchParams.get("email");
   const token = searchParams.get("token");
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => navigate("/"), 500); // redirect after short delay
-      return () => clearTimeout(timer);
-    }
-  }, [message, navigate]);
-
-  useEffect(() => {
-    if (error || message) {
-      const timer = setTimeout(() => {
-        setError("");
-        setMessage("");
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [error, message]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,16 +27,32 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/reset-password`,
-        { email, token, newPassword }
-      );
+      await axios.post(`${import.meta.env.VITE_API_URL}/reset-password`, {
+        email,
+        token,
+        newPassword,
+      });
 
-      setMessage(res.data.message);
+      // Show toast message
+      setMessage("Password reset successful! Redirecting...");
+      setRedirecting(true);
+
+      // Instant redirect after very short delay (500ms)
+      setTimeout(() => navigate("/"), 500);
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
   };
+
+  useEffect(() => {
+    if (error || (!message && !redirecting)) {
+      const timer = setTimeout(() => {
+        setError("");
+        setMessage("");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, message, redirecting]);
 
   if (!token || !email) {
     return (
