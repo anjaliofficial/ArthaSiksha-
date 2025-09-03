@@ -1,10 +1,39 @@
-// ForgotPassword.jsx
+import { useState } from "react";
 import logoWhite from "../assets/logoWhite.png";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import "./ForgotPassword.css";
 
 const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!email) {
+      setError("Please enter your email");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/forgot-password`,
+        { email }
+      );
+
+      setMessage(res.data.message);
+      setEmail("");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Something went wrong");
+    }
+  };
+
   return (
     <div className="forgot-page">
       <div className="forgot-container">
@@ -19,8 +48,21 @@ const ForgotPassword = () => {
           password.
         </p>
 
-        <input className="forgot-inputEmail" type="email" placeholder="Email" />
-        <button className="forgotBtn">Send Reset Link</button>
+        <form onSubmit={handleSubmit}>
+          <input
+            className="forgot-inputEmail"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <button className="forgotBtn" type="submit">
+            Send Reset Link
+          </button>
+        </form>
+
+        {message && <p className="success-message">{message}</p>}
+        {error && <p className="error-message">{error}</p>}
 
         <p className="forgot-redirect">
           Remember your password?{" "}

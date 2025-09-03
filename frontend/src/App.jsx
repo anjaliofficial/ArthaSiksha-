@@ -22,6 +22,7 @@ const AdminDashboard = lazy(() => import("./public/AdminDashboard"));
 const Feedback = lazy(() => import("./public/Feedback"));
 const ModulesPage = lazy(() => import("./public/Modulespage"));
 const QuizPage = lazy(() => import("./public/QuizePage"));
+const ResetPassword = lazy(() => import("./public/ResetPassword"));
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/modules" element={<ModulesPage />} />
           <Route path="/quizes" element={<QuizPage />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
         </Routes>
       </Suspense>
     </Router>
