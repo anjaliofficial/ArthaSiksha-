@@ -4,14 +4,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
-// Setup email transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER, // your Gmail
-        pass: process.env.EMAIL_PASS  // app password
-    }
-});
+
+
 
 // REGISTER
 const register = async (req, res) => {
@@ -78,7 +72,16 @@ const login = async (req, res) => {
     }
 };
 
-// SEND PASSWORD RESET LINK
+// Setup email transporter (Gmail example)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // your Gmail
+        pass: process.env.EMAIL_PASS  // app password
+    }
+});
+
+// ✅ Send password reset link
 const sendResetLink = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
@@ -89,7 +92,7 @@ const sendResetLink = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
 
         const token = crypto.randomBytes(32).toString('hex');
-        const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
 
         await pool.query(
             'UPDATE users SET reset_token=$1, reset_token_expiry=$2 WHERE email=$3',
@@ -101,7 +104,8 @@ const sendResetLink = async (req, res) => {
         await transporter.sendMail({
             to: email,
             subject: 'Reset Your Password',
-            html: `<p>Click the link to reset your password (1 hour):</p><a href="${resetLink}">${resetLink}</a>`
+            html: `<p>Click the link to reset your password (expires in 1 hour):</p>
+                   <a href="${resetLink}">${resetLink}</a>`
         });
 
         res.status(200).json({ message: 'Password reset link sent to your email' });
@@ -111,7 +115,7 @@ const sendResetLink = async (req, res) => {
     }
 };
 
-// RESET PASSWORD
+// ✅ Reset password using token
 const resetPasswordWithToken = async (req, res) => {
     const { email, token, newPassword } = req.body;
     if (!email || !token || !newPassword)
@@ -123,13 +127,15 @@ const resetPasswordWithToken = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
 
         const user = userRes.rows[0];
-        if (user.reset_token !== token) 
+
+        if (user.reset_token !== token)
             return res.status(400).json({ message: 'Invalid or expired token' });
 
-        if (new Date() > new Date(user.reset_token_expiry)) 
+        if (new Date() > new Date(user.reset_token_expiry))
             return res.status(400).json({ message: 'Token expired' });
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
+
         await pool.query(
             'UPDATE users SET password=$1, reset_token=NULL, reset_token_expiry=NULL WHERE email=$2',
             [hashedPassword, email]
@@ -141,7 +147,6 @@ const resetPasswordWithToken = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
 module.exports = {
     register,
     login,

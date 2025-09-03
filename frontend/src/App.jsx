@@ -45,7 +45,7 @@ function App() {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/modules" element={<ModulesPage />} />
           <Route path="/quizes" element={<QuizPage />} />
-          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </Suspense>
     </Router>

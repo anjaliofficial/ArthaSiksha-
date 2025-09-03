@@ -1,6 +1,4 @@
-import { useState } from "react";
-import logoWhite from "../assets/logoWhite.png";
-import { IoArrowBackOutline } from "react-icons/io5";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./ForgotPassword.css";
@@ -9,6 +7,16 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (message || error) {
+      const timer = setTimeout(() => {
+        setMessage("");
+        setError("");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, error]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +37,6 @@ const ForgotPassword = () => {
       setMessage(res.data.message);
       setEmail("");
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.message || "Something went wrong");
     }
   };
@@ -37,38 +44,26 @@ const ForgotPassword = () => {
   return (
     <div className="forgot-page">
       <div className="forgot-container">
-        <Link to="/" className="forgot-backBtn">
-          <IoArrowBackOutline />
-        </Link>
-        <img className="forgot-logo" src={logoWhite} alt="logo" />
-
-        <h2 className="forgot-title">Forgot Password?</h2>
+        <h2 className="forgot-title">Forgot Password</h2>
         <p className="forgot-subtitle">
-          Enter your email below and we’ll send you instructions to reset your
-          password.
+          Enter your email to receive a password reset link.
         </p>
-
         <form onSubmit={handleSubmit}>
           <input
-            className="forgot-inputEmail"
             type="email"
+            className="forgot-input"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <button className="forgotBtn" type="submit">
+          <button type="submit" className="forgot-btn">
             Send Reset Link
           </button>
         </form>
-
         {message && <p className="success-message">{message}</p>}
         {error && <p className="error-message">{error}</p>}
-
         <p className="forgot-redirect">
-          Remember your password?{" "}
-          <Link to="/" className="forgot-redirect-link">
-            Log In
-          </Link>
+          Back to <Link to="/">Login</Link>
         </p>
       </div>
     </div>
