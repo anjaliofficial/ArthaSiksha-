@@ -1,9 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, sendResetLink, resetPasswordWithToken } = require('../controllers/authController');
+const {
+  register,
+  login,
+  sendResetLink,
+  resetPasswordWithToken
+} = require('../controllers/authController');
 
-router.post('/register', register);
-router.post('/login', login);
+// ✅ Only use relative paths here, NOT full URLs
+router.post('/login', login);          // correct
+router.post('/register', register);    // correct
+
 router.post('/forgot-password', sendResetLink);
 router.post('/reset-password', resetPasswordWithToken);
 

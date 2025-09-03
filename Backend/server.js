@@ -1,21 +1,29 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
-const moduleRoutes = require('./routes/moduleRoutes');
-const articleRoutes = require('./routes/articleRoutes');
 
 dotenv.config();
 const app = express();
-app.use(express.json());
 
-const cors = require("cors");
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
+
+// CORS
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(cors({
-  origin: "http://localhost:5173", // frontend port
+  origin: CLIENT_URL,
+  credentials: true,
 }));
 
+// ❌ Remove this or change '*' to '/api/*'
+// app.options('*', cors({...}));
 
+// Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/modules', moduleRoutes);
-app.use('/api/articles', articleRoutes);
 
-app.listen(3000, ()=> console.log('🚀 Server running on port 3000'));
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 
 const authenticate = (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];
+    // Check Authorization header or cookie
+    const token = req.cookies.token || req.header('Authorization')?.split(' ')[1];
 
     if (!token) 
         return res.status(401).json({ message: 'No token, authorization denied' });
@@ -11,7 +12,7 @@ const authenticate = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (err) {
-        res.status(401).json({ message: 'Token is not valid' });
+        return res.status(401).json({ message: 'Token is not valid' });
     }
 };
 
