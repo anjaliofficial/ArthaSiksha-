@@ -119,4 +119,18 @@ const completeModule = async (req, res) => {
     }
 }
 
-module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule, updateModuleProgress, completeModule };
+const searchModules = async (req, res) => {
+    try {
+        const { query } = req.query;
+        const searchResults = await pool.query(
+            'SELECT * FROM modules WHERE title ILIKE $1 OR description ILIKE $1',
+            [`%${query}%`]
+        );
+        res.status(200).json({ modules: searchResults.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+module.exports = { getAllModules, getModuleById, createModule, editModule, deleteModule, updateModuleProgress, completeModule, searchModules };
