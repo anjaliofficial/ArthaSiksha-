@@ -3,6 +3,10 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
+const moduleRoutes = require('./routes/moduleRoutes');
+const articleRoutes = require('./routes/articleRoutes');
+const quizRoutes = require('./routes/quizRoutes');
+
 
 dotenv.config();
 const app = express();
@@ -10,6 +14,10 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
+
+app.use('/api/modules', moduleRoutes);
+app.use('/api/articles', articleRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 // CORS
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
