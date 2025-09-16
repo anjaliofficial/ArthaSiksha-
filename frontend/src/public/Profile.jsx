@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Profile.css";
+import { Link } from "react-router-dom";
 import {
   FaCog,
   FaBell,
@@ -7,25 +7,23 @@ import {
   FaCertificate,
   FaChartLine,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import logo from "../assets/logoWhite.png";
+import "./Profile.css";
 
 const Profile = () => {
-  // Avatar
   const [avatar, setAvatar] = useState("👩‍💻");
+  const [user, setUser] = useState({
+    name: "John Doe",
+    email: "johndoe@email.com",
+    age: 25,
+    occupation: "Student",
+    financialGoal: "Save 1 lakh",
+    language: "English",
+  });
 
-  // User info placeholders (replace with backend data)
-  const [username, setUsername] = useState("John Doe");
-  const [email, setEmail] = useState("johndoe@email.com");
-  const [age, setAge] = useState(25);
-  const [occupation, setOccupation] = useState("Student");
-  const [language, setLanguage] = useState("English");
-
-  // Points
   const points = 1200;
   const [animatedPoints, setAnimatedPoints] = useState(0);
 
-  // Badges and Certificates
   const badges = [
     { name: "Beginner Saver", emoji: "🏆" },
     { name: "Budget Master", emoji: "💰" },
@@ -38,7 +36,6 @@ const Profile = () => {
     "Budgeting 101",
   ];
 
-  // Recent Activities
   const recentActivities = [
     { lesson: "Saving Basics", score: 95 },
     { lesson: "Quiz 1", score: 88 },
@@ -47,7 +44,6 @@ const Profile = () => {
     { lesson: "Quiz 2", score: 100 },
   ];
 
-  // Animate points
   useEffect(() => {
     let start = 0;
     const interval = setInterval(() => {
@@ -61,34 +57,46 @@ const Profile = () => {
     return () => clearInterval(interval);
   }, [points]);
 
+  const handleSaveProfile = () => {
+    alert("Profile saved locally!");
+  };
+
   return (
     <div className="profile-page">
       {/* Navbar */}
       <nav className="navbar">
-        <Link to="/">
+        <Link to="/" className="logo-link">
           <img src={logo} alt="Logo" className="logo-img" />
         </Link>
         <ul className="nav-links">
           <li>
-            <Link to="/home">Home</Link>
-          </li>
-          <li>
-            <Link to="/features">Features</Link>
-          </li>
-          <li>
-            <Link to="/learn">Learn</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/notifications">
-              <FaBell size={22} className="notification-icon" />
+            <Link to="/home" className="nav-link">
+              Home
             </Link>
           </li>
           <li>
-            <Link to="/settings">
-              <FaCog size={22} className="profile-icon" />
+            <Link to="/features" className="nav-link">
+              Features
+            </Link>
+          </li>
+          <li>
+            <Link to="/learn" className="nav-link">
+              Learn
+            </Link>
+          </li>
+          <li>
+            <Link to="/about" className="nav-link">
+              About
+            </Link>
+          </li>
+          <li>
+            <Link to="/notifications" className="nav-link">
+              <FaBell size={22} />
+            </Link>
+          </li>
+          <li>
+            <Link to="/settings" className="nav-link">
+              <FaCog size={22} />
             </Link>
           </li>
         </ul>
@@ -104,59 +112,63 @@ const Profile = () => {
             <button onClick={() => setAvatar("🧑‍💼")}>🧑‍💼</button>
           </div>
         </div>
+
         <div className="user-info">
-          <h2>{username}</h2>
-          <p>Email: {email}</p>
-          <p>Age: {age}</p>
-          <p>Occupation: {occupation}</p>
-          <div className="language-select">
-            Language:{" "}
+          {["Name", "Email", "Age", "Occupation", "Financial Goal"].map(
+            (label, idx) => {
+              const key = label.toLowerCase().replace(" ", "");
+              return (
+                <div className="input-box" key={idx}>
+                  <label>{label}</label>
+                  <input
+                    type={key === "age" ? "number" : "text"}
+                    value={user[key]}
+                    onChange={(e) =>
+                      setUser({ ...user, [key]: e.target.value })
+                    }
+                  />
+                </div>
+              );
+            }
+          )}
+
+          <div className="input-box">
+            <label>Language</label>
             <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              value={user.language}
+              onChange={(e) => setUser({ ...user, language: e.target.value })}
             >
               <option>English</option>
               <option>Nepali</option>
             </select>
           </div>
+
           <p className="user-points">Points: {animatedPoints}</p>
+          <button onClick={handleSaveProfile}>Save Profile</button>
         </div>
       </section>
 
       {/* Dashboard */}
       <section className="dashboard-grid">
-        {/* Learning Progress */}
         <div className="dashboard-card">
           <h3>
             <FaChartLine /> Learning Progress
           </h3>
-          <div className="progress-bar">
-            <span>Savings Basics</span>
-            <div className="progress">
-              <div className="progress-fill" style={{ width: "90%" }}>
-                90%
+          {["Savings Basics", "Budgeting", "Investing"].map((lesson, idx) => {
+            const widths = ["90%", "75%", "50%"];
+            return (
+              <div className="progress-bar" key={idx}>
+                <span>{lesson}</span>
+                <div className="progress">
+                  <div className="progress-fill" style={{ width: widths[idx] }}>
+                    {widths[idx]}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <span>Budgeting</span>
-            <div className="progress">
-              <div className="progress-fill" style={{ width: "75%" }}>
-                75%
-              </div>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <span>Investing</span>
-            <div className="progress">
-              <div className="progress-fill" style={{ width: "50%" }}>
-                50%
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Badges & Certificates */}
         <div className="dashboard-card">
           <h3>
             <FaTrophy /> Badges & Certificates
@@ -180,7 +192,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Recent Activities */}
         <div className="dashboard-card recent-activities">
           <h3>Recent Activities</h3>
           <ul>
@@ -206,10 +217,11 @@ const Profile = () => {
           <div className="footer-section">
             <h4>Quick Links</h4>
             <ul>
-              <li>Home</li>
-              <li>Features</li>
-              <li>Learn</li>
-              <li>Gamification</li>
+              {["Home", "Features", "Learn", "Gamification"].map(
+                (item, idx) => (
+                  <li key={idx}>{item}</li>
+                )
+              )}
             </ul>
           </div>
           <div className="footer-section">
