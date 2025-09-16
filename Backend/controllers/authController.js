@@ -4,13 +4,10 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
-
-
-
-// REGISTER
+// ---------------- REGISTER ----------------
 const register = async (req, res) => {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password)
+    const { username, email, password } = req.body;
+    if (!username || !email || !password)
         return res.status(400).json({ message: 'All fields required' });
 
     try {
@@ -22,7 +19,7 @@ const register = async (req, res) => {
 
         const result = await pool.query(
             'INSERT INTO users (username, email, password) VALUES ($1,$2,$3) RETURNING id, username, email',
-            [name, email, hashedPassword]
+            [username, email, hashedPassword]
         );
 
         res.status(201).json({ message: 'User registered', user: result.rows[0] });
@@ -31,7 +28,8 @@ const register = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-// LOGIN
+
+// ---------------- LOGIN ----------------
 const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password)
@@ -48,7 +46,7 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
 
         const token = jwt.sign(
-            { id: user.id, role: user.role },
+            { id: user.id },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
@@ -64,7 +62,7 @@ const login = async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             token,
-            user: { id: user.id, username: user.username, email: user.email, role: user.role }
+            user: { id: user.id, username: user.username, email: user.email }
         });
     } catch (err) {
         console.error(err);
@@ -72,16 +70,16 @@ const login = async (req, res) => {
     }
 };
 
-// Setup email transporter (Gmail example)
+// ---------------- EMAIL TRANSPORTER ----------------
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // your Gmail
-        pass: process.env.EMAIL_PASS  // app password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-// ✅ Send password reset link
+// ---------------- SEND PASSWORD RESET LINK ----------------
 const sendResetLink = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
@@ -115,7 +113,7 @@ const sendResetLink = async (req, res) => {
     }
 };
 
-// ✅ Reset password using token
+// ---------------- RESET PASSWORD ----------------
 const resetPasswordWithToken = async (req, res) => {
     const { email, token, newPassword } = req.body;
     if (!email || !token || !newPassword)
@@ -147,6 +145,7 @@ const resetPasswordWithToken = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 module.exports = {
     register,
     login,

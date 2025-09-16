@@ -5,11 +5,14 @@ exports.getProfile = async (req, res) => {
     const userId = req.params.id;
 
     try {
-        const [rows] = await pool.query(
+        const result = await pool.query(
             `SELECT id, username, email, age, occupation, financial_goal, address, contact
-             FROM users WHERE id = $1`,
+             FROM users
+             WHERE id = $1`,
             [userId]
         );
+
+        const rows = result.rows;
 
         if (rows.length === 0)
             return res.status(404).json({ message: 'User not found' });
@@ -27,9 +30,15 @@ exports.updateProfile = async (req, res) => {
     const { username, email, age, occupation, financial_goal, address, contact } = req.body;
 
     try {
-        const [result] = await pool.query(
+        const result = await pool.query(
             `UPDATE users
-             SET username = $1, email = $2, age = $3, occupation = $4, financial_goal = $5, address = $6, contact = $7
+             SET username = $1,
+                 email = $2,
+                 age = $3,
+                 occupation = $4,
+                 financial_goal = $5,
+                 address = $6,
+                 contact = $7
              WHERE id = $8`,
             [username, email, age, occupation, financial_goal, address, contact, userId]
         );
@@ -37,13 +46,14 @@ exports.updateProfile = async (req, res) => {
         if (result.rowCount === 0)
             return res.status(404).json({ message: 'User not found' });
 
-        const [updatedRows] = await pool.query(
+        const updatedResult = await pool.query(
             `SELECT id, username, email, age, occupation, financial_goal, address, contact
-             FROM users WHERE id = $1`,
+             FROM users
+             WHERE id = $1`,
             [userId]
         );
 
-        res.json(updatedRows[0]);
+        res.json(updatedResult.rows[0]);
     } catch (err) {
         console.error("Error in updateProfile:", err);
         res.status(500).json({ message: 'Server error' });
