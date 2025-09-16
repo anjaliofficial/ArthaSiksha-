@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const moduleRoutes = require('./routes/moduleRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use(cors({
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
