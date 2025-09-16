@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FaCog, FaBell } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaCog, FaBell, FaArrowLeft } from "react-icons/fa";
 import logo from "../assets/logoWhite.png";
 import "./Profile.css";
 
@@ -20,8 +20,8 @@ const Profile = () => {
 
   const USER_ID = 1;
   const API_URL = "http://localhost:3000/api/profile";
+  const navigate = useNavigate();
 
-  // Map labels to state keys
   const fieldMap = {
     Username: "username",
     Email: "email",
@@ -105,6 +105,12 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = () => {
+    // Clear any auth tokens if applicable
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div className="profile-page">
       {/* Navbar */}
@@ -143,8 +149,18 @@ const Profile = () => {
               <FaCog size={22} />
             </Link>
           </li>
+          <li>
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </li>
         </ul>
       </nav>
+
+      {/* Back Button */}
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        <FaArrowLeft /> Back
+      </button>
 
       {/* Profile Hero */}
       <section className="profile-hero">
