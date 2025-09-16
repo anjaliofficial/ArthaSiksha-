@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -14,15 +15,15 @@ dotenv.config();
 const app = express();
 
 // ---------------- MIDDLEWARES ----------------
-app.use(express.json());           // Parse JSON bodies
-app.use(cookieParser());           // Parse cookies
+app.use(express.json());
+app.use(cookieParser());
+
+// Serve static uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ---------------- CORS ----------------
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
-app.use(cors({
-    origin: CLIENT_URL,
-    credentials: true
-}));
+app.use(cors({ origin: CLIENT_URL, credentials: true }));
 
 // ---------------- ROUTES ----------------
 app.use('/api/auth', authRoutes);
@@ -36,6 +37,4 @@ app.get('/', (req, res) => res.send('API is running...'));
 
 // ---------------- START SERVER ----------------
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

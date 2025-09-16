@@ -1,64 +1,108 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  FaCog,
-  FaBell,
-  FaTrophy,
-  FaCertificate,
-  FaChartLine,
-} from "react-icons/fa";
+import { FaCog, FaBell } from "react-icons/fa";
 import logo from "../assets/logoWhite.png";
 import "./Profile.css";
 
 const Profile = () => {
   const [avatar, setAvatar] = useState("👩‍💻");
+  const [profileImage, setProfileImage] = useState(null);
   const [user, setUser] = useState({
-    name: "John Doe",
-    email: "johndoe@email.com",
-    age: 25,
-    occupation: "Student",
-    financialGoal: "Save 1 lakh",
+    username: "",
+    email: "",
+    age: "",
+    occupation: "",
+    financialGoal: "",
     language: "English",
+    address: "",
+    contact: "",
   });
 
-  const points = 1200;
-  const [animatedPoints, setAnimatedPoints] = useState(0);
+  const USER_ID = 1; // Replace with dynamic user ID if needed
+  const API_URL = "http://localhost:3000/api/profile"; // Backend API
 
-  const badges = [
-    { name: "Beginner Saver", emoji: "🏆" },
-    { name: "Budget Master", emoji: "💰" },
-    { name: "Quiz Champ", emoji: "📊" },
-  ];
-
-  const certificates = [
-    "Data Quest: Python Module",
-    "Finance Basics",
-    "Budgeting 101",
-  ];
-
-  const recentActivities = [
-    { lesson: "Saving Basics", score: 95 },
-    { lesson: "Quiz 1", score: 88 },
-    { lesson: "Investing Intro", score: 92 },
-    { lesson: "Budget Challenge", score: 85 },
-    { lesson: "Quiz 2", score: 100 },
-  ];
-
+  // Fetch user profile from backend
   useEffect(() => {
-    let start = 0;
-    const interval = setInterval(() => {
-      start += 10;
-      if (start >= points) {
-        start = points;
-        clearInterval(interval);
-      }
-      setAnimatedPoints(start);
-    }, 50);
-    return () => clearInterval(interval);
-  }, [points]);
+    async function fetchUser() {
+      try {
+        const res = await fetch(`${API_URL}/${USER_ID}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to fetch");
 
-  const handleSaveProfile = () => {
-    alert("Profile saved locally!");
+        if (data.profileImage) {
+          setProfileImage(null);
+          setAvatar(data.profileImage);
+        }
+
+        setUser({
+          username: data.username || "",
+          email: data.email || "",
+          age: data.age !== null ? data.age : "",
+          occupation: data.occupation || "",
+          financialGoal: data.financialGoal || "",
+          language: data.language || "English",
+          address: data.address || "",
+          contact: data.contact || "",
+        });
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      setAvatar(null);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("username", user.username);
+      formData.append("email", user.email);
+      formData.append("age", user.age || null);
+      formData.append("occupation", user.occupation);
+      formData.append("financialGoal", user.financialGoal);
+      formData.append("language", user.language);
+      formData.append("address", user.address);
+      formData.append("contact", user.contact);
+
+      if (profileImage instanceof File) {
+        formData.append("profileImage", profileImage);
+      }
+
+      const res = await fetch(`${API_URL}/${USER_ID}`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to save profile");
+
+      alert("Profile saved successfully!");
+      setUser({
+        username: data.username,
+        email: data.email,
+        age: data.age !== null ? data.age : "",
+        occupation: data.occupation,
+        financialGoal: data.financialGoal,
+        language: data.language,
+        address: data.address,
+        contact: data.contact,
+      });
+
+      if (data.profileImage) {
+        setProfileImage(null);
+        setAvatar(data.profileImage);
+      }
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+      alert("Failed to save profile.");
+    }
   };
 
   return (
@@ -105,32 +149,77 @@ const Profile = () => {
       {/* Profile Hero */}
       <section className="profile-hero">
         <div className="avatar-section">
-          <div className="avatar">{avatar}</div>
+          <div className="avatar">
+            {profileImage ? (
+              <img
+                src={URL.createObjectURL(profileImage)}
+                alt="Profile"
+                className="profile-img"
+              />
+            ) : typeof avatar === "string" && avatar.startsWith("/uploads/") ? (
+              <img src={avatar} alt="Profile" className="profile-img" />
+            ) : (
+              avatar
+            )}
+          </div>
+
+          {/* Avatar Options */}
           <div className="avatar-options">
-            <button onClick={() => setAvatar("👩‍💻")}>👩‍💻</button>
-            <button onClick={() => setAvatar("🧑‍🎓")}>🧑‍🎓</button>
-            <button onClick={() => setAvatar("🧑‍💼")}>🧑‍💼</button>
+            <button
+              onClick={() => {
+                setAvatar("👩‍💻");
+                setProfileImage(null);
+              }}
+            >
+              👩‍💻
+            </button>
+            <button
+              onClick={() => {
+                setAvatar("🧑‍🎓");
+                setProfileImage(null);
+              }}
+            >
+              🧑‍🎓
+            </button>
+            <button
+              onClick={() => {
+                setAvatar("🧑‍💼");
+                setProfileImage(null);
+              }}
+            >
+              🧑‍💼
+            </button>
+          </div>
+
+          {/* Upload Profile Image */}
+          <div className="upload-photo">
+            <input type="file" accept="image/*" onChange={handleImageUpload} />
           </div>
         </div>
 
+        {/* User Info */}
         <div className="user-info">
-          {["Name", "Email", "Age", "Occupation", "Financial Goal"].map(
-            (label, idx) => {
-              const key = label.toLowerCase().replace(" ", "");
-              return (
-                <div className="input-box" key={idx}>
-                  <label>{label}</label>
-                  <input
-                    type={key === "age" ? "number" : "text"}
-                    value={user[key]}
-                    onChange={(e) =>
-                      setUser({ ...user, [key]: e.target.value })
-                    }
-                  />
-                </div>
-              );
-            }
-          )}
+          {[
+            "Username",
+            "Email",
+            "Age",
+            "Occupation",
+            "Financial Goal",
+            "Address",
+            "Contact",
+          ].map((label, idx) => {
+            const key = label.toLowerCase().replace(" ", "");
+            return (
+              <div className="input-box" key={idx}>
+                <label>{label}</label>
+                <input
+                  type={key === "age" ? "number" : "text"}
+                  value={user[key]}
+                  onChange={(e) => setUser({ ...user, [key]: e.target.value })}
+                />
+              </div>
+            );
+          })}
 
           <div className="input-box">
             <label>Language</label>
@@ -143,68 +232,11 @@ const Profile = () => {
             </select>
           </div>
 
-          <p className="user-points">Points: {animatedPoints}</p>
           <button onClick={handleSaveProfile}>Save Profile</button>
         </div>
       </section>
 
-      {/* Dashboard */}
-      <section className="dashboard-grid">
-        <div className="dashboard-card">
-          <h3>
-            <FaChartLine /> Learning Progress
-          </h3>
-          {["Savings Basics", "Budgeting", "Investing"].map((lesson, idx) => {
-            const widths = ["90%", "75%", "50%"];
-            return (
-              <div className="progress-bar" key={idx}>
-                <span>{lesson}</span>
-                <div className="progress">
-                  <div className="progress-fill" style={{ width: widths[idx] }}>
-                    {widths[idx]}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="dashboard-card">
-          <h3>
-            <FaTrophy /> Badges & Certificates
-          </h3>
-          <div className="badge-list">
-            {badges.map((b, idx) => (
-              <div key={idx} className="badge-card" title={b.name}>
-                {b.emoji} {b.name}
-              </div>
-            ))}
-          </div>
-          <div className="certificate-list">
-            {certificates.map((c, idx) => (
-              <div key={idx} className="certificate-card">
-                {c}{" "}
-                <button>
-                  <FaCertificate /> Download
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="dashboard-card recent-activities">
-          <h3>Recent Activities</h3>
-          <ul>
-            {recentActivities.map((act, idx) => (
-              <li key={idx}>
-                {act.lesson} - Score: {act.score}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Footer */}
+      {/* Footer Section */}
       <footer>
         <div className="footer-content">
           <div className="footer-section">
@@ -217,28 +249,47 @@ const Profile = () => {
           <div className="footer-section">
             <h4>Quick Links</h4>
             <ul>
-              {["Home", "Features", "Learn", "Gamification"].map(
-                (item, idx) => (
-                  <li key={idx}>{item}</li>
-                )
-              )}
+              <li>
+                <Link to="/">Home</Link>
+              </li>
+              <li>
+                <Link to="/profile">Profile</Link>
+              </li>
+              <li>
+                <Link to="/courses">Courses</Link>
+              </li>
+              <li>
+                <Link to="/contact">Contact</Link>
+              </li>
             </ul>
           </div>
           <div className="footer-section">
-            <h4>Contact</h4>
-            <p>Email: support@arthashiksha.com</p>
-            <p>Phone: +977 1234 56789</p>
-          </div>
-          <div className="footer-section">
-            <h4>Newsletter</h4>
+            <h4>Subscribe</h4>
             <input type="email" placeholder="Your email" />
             <button className="subscribe-btn">Subscribe</button>
           </div>
         </div>
-        <div className="footer-bottom">
-          &copy; 2025 Artha Shiksha. All rights reserved.
-        </div>
       </footer>
+
+      {/* Plain text copyright, no box */}
+      <ul>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/profile">Profile</Link>
+        </li>
+        <li>
+          <Link to="/courses">Courses</Link>
+        </li>
+        <li>
+          <Link to="/contact">Contact</Link>
+        </li>
+      </ul>
+
+      <div className="footer-bottom-text">
+        © 2025 Artha Shiksha. All rights reserved.
+      </div>
     </div>
   );
 };
