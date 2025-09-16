@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaCog, FaBell, FaArrowLeft } from "react-icons/fa";
+import { FaCog, FaBell } from "react-icons/fa";
 import logo from "../assets/logoWhite.png";
 import "./Profile.css";
 
@@ -40,8 +40,8 @@ const Profile = () => {
         if (!res.ok) throw new Error(data.message || "Failed to fetch");
 
         if (data.profileImage) {
-          setProfileImage(null);
           setAvatar(`http://localhost:3000${data.profileImage}`);
+          setProfileImage(null);
         }
 
         setUser({
@@ -86,14 +86,14 @@ const Profile = () => {
 
       alert("Profile saved successfully!");
       setUser({
-        username: data.username,
-        email: data.email,
+        username: data.username || "",
+        email: data.email || "",
         age: data.age !== null ? data.age : "",
-        occupation: data.occupation,
-        financialGoal: data.financialGoal,
-        language: data.language,
-        address: data.address,
-        contact: data.contact,
+        occupation: data.occupation || "",
+        financialGoal: data.financialGoal || "",
+        language: data.language || "English",
+        address: data.address || "",
+        contact: data.contact || "",
       });
 
       if (data.profileImage)
@@ -106,9 +106,12 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    // Clear any auth tokens if applicable
-    localStorage.clear();
+    // Clear auth tokens or session here if any
     navigate("/login");
+  };
+
+  const handleBack = () => {
+    navigate(-1);
   };
 
   return (
@@ -150,7 +153,7 @@ const Profile = () => {
             </Link>
           </li>
           <li>
-            <button onClick={handleLogout} className="logout-btn">
+            <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>
           </li>
@@ -158,8 +161,8 @@ const Profile = () => {
       </nav>
 
       {/* Back Button */}
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        <FaArrowLeft /> Back
+      <button className="back-btn" onClick={handleBack}>
+        ← Back
       </button>
 
       {/* Profile Hero */}
@@ -179,7 +182,6 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Avatar Options */}
           <div className="avatar-options">
             <button
               onClick={() => {
@@ -212,7 +214,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* User Info */}
         <div className="user-info">
           {Object.keys(fieldMap).map((label, idx) => {
             const key = fieldMap[label];
@@ -221,7 +222,7 @@ const Profile = () => {
                 <label>{label}</label>
                 <input
                   type={key === "age" ? "number" : "text"}
-                  value={user[key]}
+                  value={user[key] || ""}
                   onChange={(e) => setUser({ ...user, [key]: e.target.value })}
                 />
               </div>
@@ -242,44 +243,6 @@ const Profile = () => {
           <button onClick={handleSaveProfile}>Save Profile</button>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer>
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>About</h4>
-            <p>
-              Artha Shiksha is your platform for interactive financial
-              education.
-            </p>
-          </div>
-          <div className="footer-section">
-            <h4>Quick Links</h4>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/profile">Profile</Link>
-              </li>
-              <li>
-                <Link to="/courses">Courses</Link>
-              </li>
-              <li>
-                <Link to="/contact">Contact</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Subscribe</h4>
-            <input type="email" placeholder="Your email" />
-            <button className="subscribe-btn">Subscribe</button>
-          </div>
-        </div>
-        <div className="footer-bottom-text">
-          © 2025 Artha Shiksha. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 };

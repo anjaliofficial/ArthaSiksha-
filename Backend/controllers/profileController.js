@@ -3,9 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const upload = require('../middleware/upload'); // multer setup
 
-// Serve this in your main app.js or server.js
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // GET user profile
 exports.getProfile = async (req, res) => {
   const userId = req.params.id;
@@ -31,50 +28,46 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// UPDATE user profile
 exports.updateProfile = [
-  upload.single('profileImage'), // multer middleware
+  upload.single('profileImage'),
   async (req, res) => {
     const userId = req.params.id;
-    const {
-      username,
-      email,
-      age,
-      occupation,
-      financialGoal,
-      language,
-      address,
-      contact
-    } = req.body;
+    const { username = '', email = '', age, occupation = '', financialGoal = '', language = 'English', address = '', contact = '' } = req.body;
 
-    let parsedAge = age;
-    if (age === "" || age === "null" || age === null) {
-      parsedAge = null;
-    } else {
-      parsedAge = parseInt(age, 10);
-      if (isNaN(parsedAge)) parsedAge = null;
+    // Check for duplicate email
+    const emailCheck = await pool.query(
+      `SELECT id FROM users WHERE email = $1 AND id <> $2`,
+      [email, userId]
+    );
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ message: "Email already in use by another account." });
+    }
+
+    // Parse age
+    let parsedAge = null;
+    if (age !== undefined && age !== '' && age !== 'null') {
+      const numAge = parseInt(age, 10);
+      parsedAge = isNaN(numAge) ? null : numAge;
     }
 
     try {
+      // Get old image
       const existingResult = await pool.query(
         `SELECT profile_image FROM users WHERE id = $1`,
         [userId]
       );
-
       if (existingResult.rows.length === 0)
         return res.status(404).json({ message: 'User not found' });
 
       const oldImage = existingResult.rows[0].profile_image;
-
-      // Handle new profile image
       let profileImagePath = oldImage;
+
       if (req.file) {
         profileImagePath = `/uploads/${req.file.filename}`;
 
-        // Delete old image if exists
         if (oldImage && oldImage.startsWith("/uploads/")) {
-          const oldImagePath = path.join(__dirname, '..', oldImage);
-          if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+          const oldPath = path.join(__dirname, '..', oldImage);
+          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
       }
 
@@ -95,7 +88,7 @@ exports.updateProfile = [
       );
 
       // Return updated profile
-      const updatedResult = await pool.query(
+      const updated = await pool.query(
         `SELECT id, username, email, age, occupation,
                 financial_goal AS "financialGoal",
                 language, address, contact,
@@ -105,7 +98,7 @@ exports.updateProfile = [
         [userId]
       );
 
-      res.json(updatedResult.rows[0]);
+      res.json(updated.rows[0]);
     } catch (err) {
       console.error("Error in updateProfile:", err);
       res.status(500).json({ message: 'Server error' });
