@@ -101,7 +101,7 @@ const Profile = () => {
       setProfileImage(null);
     } catch (error) {
       console.error("Failed to save profile:", error);
-      alert("Failed to save profile.");
+      alert(error.message || "Failed to save profile.");
     }
   };
 
@@ -243,6 +243,44 @@ const Profile = () => {
           <button onClick={handleSaveProfile}>Save Profile</button>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer>
+        <div className="footer-content">
+          <div className="footer-section">
+            <h4>About</h4>
+            <p>
+              Artha Shiksha is your platform for interactive financial
+              education.
+            </p>
+          </div>
+          <div className="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li>
+                <Link to="/">Home</Link>
+              </li>
+              <li>
+                <Link to="/profile">Profile</Link>
+              </li>
+              <li>
+                <Link to="/courses">Courses</Link>
+              </li>
+              <li>
+                <Link to="/contact">Contact</Link>
+              </li>
+            </ul>
+          </div>
+          <div className="footer-section">
+            <h4>Subscribe</h4>
+            <input type="email" placeholder="Your email" />
+            <button className="subscribe-btn">Subscribe</button>
+          </div>
+        </div>
+        <div className="footer-bottom-text">
+          © 2025 Artha Shiksha. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };
