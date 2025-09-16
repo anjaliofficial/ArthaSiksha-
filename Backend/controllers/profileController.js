@@ -3,6 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const upload = require('../middleware/upload'); // multer setup
 
+// Serve this in your main app.js or server.js
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // GET user profile
 exports.getProfile = async (req, res) => {
   const userId = req.params.id;
@@ -44,7 +47,6 @@ exports.updateProfile = [
       contact
     } = req.body;
 
-    // Convert age to number or null
     let parsedAge = age;
     if (age === "" || age === "null" || age === null) {
       parsedAge = null;
@@ -54,7 +56,6 @@ exports.updateProfile = [
     }
 
     try {
-      // Get existing profile to delete old image if replaced
       const existingResult = await pool.query(
         `SELECT profile_image FROM users WHERE id = $1`,
         [userId]
@@ -65,20 +66,20 @@ exports.updateProfile = [
 
       const oldImage = existingResult.rows[0].profile_image;
 
-      // Handle profile image path
+      // Handle new profile image
       let profileImagePath = oldImage;
       if (req.file) {
         profileImagePath = `/uploads/${req.file.filename}`;
 
-        // Delete old image if exists and is not default
+        // Delete old image if exists
         if (oldImage && oldImage.startsWith("/uploads/")) {
           const oldImagePath = path.join(__dirname, '..', oldImage);
           if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
         }
       }
 
-      // Update user profile
-      const result = await pool.query(
+      // Update user
+      await pool.query(
         `UPDATE users
          SET username = $1,
              email = $2,

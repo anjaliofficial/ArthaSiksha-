@@ -18,10 +18,20 @@ const Profile = () => {
     contact: "",
   });
 
-  const USER_ID = 1; // Replace with dynamic user ID if needed
-  const API_URL = "http://localhost:3000/api/profile"; // Backend API
+  const USER_ID = 1;
+  const API_URL = "http://localhost:3000/api/profile";
 
-  // Fetch user profile from backend
+  // Map labels to state keys
+  const fieldMap = {
+    Username: "username",
+    Email: "email",
+    Age: "age",
+    Occupation: "occupation",
+    "Financial Goal": "financialGoal",
+    Address: "address",
+    Contact: "contact",
+  };
+
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -31,7 +41,7 @@ const Profile = () => {
 
         if (data.profileImage) {
           setProfileImage(null);
-          setAvatar(data.profileImage);
+          setAvatar(`http://localhost:3000${data.profileImage}`);
         }
 
         setUser({
@@ -62,18 +72,9 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     try {
       const formData = new FormData();
-      formData.append("username", user.username);
-      formData.append("email", user.email);
-      formData.append("age", user.age || null);
-      formData.append("occupation", user.occupation);
-      formData.append("financialGoal", user.financialGoal);
-      formData.append("language", user.language);
-      formData.append("address", user.address);
-      formData.append("contact", user.contact);
-
-      if (profileImage instanceof File) {
+      Object.keys(user).forEach((key) => formData.append(key, user[key] || ""));
+      if (profileImage instanceof File)
         formData.append("profileImage", profileImage);
-      }
 
       const res = await fetch(`${API_URL}/${USER_ID}`, {
         method: "PUT",
@@ -95,10 +96,9 @@ const Profile = () => {
         contact: data.contact,
       });
 
-      if (data.profileImage) {
-        setProfileImage(null);
-        setAvatar(data.profileImage);
-      }
+      if (data.profileImage)
+        setAvatar(`http://localhost:3000${data.profileImage}`);
+      setProfileImage(null);
     } catch (error) {
       console.error("Failed to save profile:", error);
       alert("Failed to save profile.");
@@ -156,10 +156,10 @@ const Profile = () => {
                 alt="Profile"
                 className="profile-img"
               />
-            ) : typeof avatar === "string" && avatar.startsWith("/uploads/") ? (
+            ) : avatar ? (
               <img src={avatar} alt="Profile" className="profile-img" />
             ) : (
-              avatar
+              "👩‍💻"
             )}
           </div>
 
@@ -191,7 +191,6 @@ const Profile = () => {
             </button>
           </div>
 
-          {/* Upload Profile Image */}
           <div className="upload-photo">
             <input type="file" accept="image/*" onChange={handleImageUpload} />
           </div>
@@ -199,16 +198,8 @@ const Profile = () => {
 
         {/* User Info */}
         <div className="user-info">
-          {[
-            "Username",
-            "Email",
-            "Age",
-            "Occupation",
-            "Financial Goal",
-            "Address",
-            "Contact",
-          ].map((label, idx) => {
-            const key = label.toLowerCase().replace(" ", "");
+          {Object.keys(fieldMap).map((label, idx) => {
+            const key = fieldMap[label];
             return (
               <div className="input-box" key={idx}>
                 <label>{label}</label>
@@ -236,7 +227,7 @@ const Profile = () => {
         </div>
       </section>
 
-      {/* Footer Section */}
+      {/* Footer */}
       <footer>
         <div className="footer-content">
           <div className="footer-section">
@@ -269,27 +260,10 @@ const Profile = () => {
             <button className="subscribe-btn">Subscribe</button>
           </div>
         </div>
+        <div className="footer-bottom-text">
+          © 2025 Artha Shiksha. All rights reserved.
+        </div>
       </footer>
-
-      {/* Plain text copyright, no box */}
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/profile">Profile</Link>
-        </li>
-        <li>
-          <Link to="/courses">Courses</Link>
-        </li>
-        <li>
-          <Link to="/contact">Contact</Link>
-        </li>
-      </ul>
-
-      <div className="footer-bottom-text">
-        © 2025 Artha Shiksha. All rights reserved.
-      </div>
     </div>
   );
 };
