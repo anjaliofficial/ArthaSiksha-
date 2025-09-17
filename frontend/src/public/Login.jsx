@@ -35,10 +35,20 @@ const Login = () => {
         { withCredentials: true } // important for cookies
       );
 
+      const { token, user } = response.data;
+      console.log(user);
+      // Store user data in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
       setMessage({ text: "✅ Login successful!", type: "success" });
 
       setTimeout(() => {
+        if (user.role === "admin"){
+          navigate("/admindashboard");
+        } else {
         navigate("/homepage"); // redirect after login
+        }
       }, 1500);
     } catch (err) {
       setMessage({

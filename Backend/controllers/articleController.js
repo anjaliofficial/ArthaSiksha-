@@ -26,13 +26,15 @@ const getArticleById = async (req, res) => {
 
 const createArticle = async (req, res) => {
     const { title, body, tags } = req.body;
+    const tagsArray = tags.split(","); // ["no","bye","hii"]
+
     if (req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied. Admins only.' });
     }
     try {
         const newArticle = await pool.query(
             'INSERT INTO articles (title, body, tags) VALUES ($1, $2, $3) RETURNING *',
-            [title, body, tags]
+            [title, body, tagsArray]
         );
         res.status(201).json({ article: newArticle.rows[0] });
     } catch (error) {
