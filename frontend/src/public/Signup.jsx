@@ -30,7 +30,7 @@ const Signup = () => {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.post("http://localhost:3000/api/auth/register", {
+      await axios.post("http://localhost:3000/api/auth/register", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -47,54 +47,89 @@ const Signup = () => {
   return (
     <div className="signup-page">
       <div className="signup-container">
+        {/* Back Button */}
         <Link className="signup-backBtn" to="/">
           <IoArrowBackOutline />
         </Link>
+
+        {/* Logo */}
         <img className="signup-logo" src={logoWhite} alt="logo" />
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
+          <label className="signup-label" htmlFor="name">
+            Full Name
+          </label>
           <input
+            id="name"
             type="text"
             name="name"
-            placeholder="Full Name"
+            className="signup-input"
+            placeholder="Enter your full name"
             value={formData.name}
             onChange={handleChange}
             required
           />
+
+          <label className="signup-label" htmlFor="email">
+            Email
+          </label>
           <input
+            id="email"
             type="email"
             name="email"
-            placeholder="Email"
+            className="signup-input"
+            placeholder="Enter your email"
             value={formData.email}
             onChange={handleChange}
             required
           />
+
+          <label className="signup-label" htmlFor="password">
+            Password
+          </label>
           <input
+            id="password"
             type="password"
             name="password"
-            placeholder="Password"
+            className="signup-input"
+            placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
             required
           />
+
+          <label className="signup-label" htmlFor="confirmPassword">
+            Confirm Password
+          </label>
           <input
+            id="confirmPassword"
             type="password"
             name="confirmPassword"
-            placeholder="Confirm Password"
+            className="signup-input"
+            placeholder="Re-enter your password"
             value={formData.confirmPassword}
             onChange={handleChange}
             required
           />
-          <button type="submit" disabled={loading}>
+
+          <button type="submit" className="signupBtn" disabled={loading}>
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
-        {message && <p style={{ color: "green" }}>{message}</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* Messages */}
+        {message && (
+          <p style={{ color: "green", marginTop: "12px" }}>{message}</p>
+        )}
+        {error && <p style={{ color: "red", marginTop: "12px" }}>{error}</p>}
 
-        <p>
-          Already have an account? <Link to="/login">Log In</Link>
+        {/* Redirect */}
+        <p className="signup-redirect">
+          Already have an account?{" "}
+          <Link to="/login" className="signup-redirect-link">
+            Log In
+          </Link>
         </p>
       </div>
     </div>

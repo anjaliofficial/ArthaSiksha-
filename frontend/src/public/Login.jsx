@@ -16,11 +16,9 @@ const Login = () => {
     e.preventDefault();
     try {
       setError("");
-      const res = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        formData,
-        { withCredentials: true }
-      );
+      await axios.post("http://localhost:3000/api/auth/login", formData, {
+        withCredentials: true,
+      });
       navigate("/homepage"); // redirect to homepage
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -30,29 +28,61 @@ const Login = () => {
   return (
     <div className="login-page">
       <div className="login-container">
+        {/* Logo */}
         <img className="login-logo" src={logoWhite} alt="logo" />
+
+        {/* Form */}
         <form onSubmit={handleSubmit}>
+          {/* Email */}
+          <label className="login-label" htmlFor="email">
+            Email
+          </label>
           <input
+            id="email"
             type="email"
             name="email"
-            placeholder="Email"
+            className="login-inputEmail"
+            placeholder="Enter your email"
             value={formData.email}
             onChange={handleChange}
             required
           />
+
+          {/* Password */}
+          <label className="login-label" htmlFor="password">
+            Password
+          </label>
           <input
+            id="password"
             type="password"
             name="password"
-            placeholder="Password"
+            className="login-inputPassword"
+            placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
             required
           />
-          <button type="submit">Log In</button>
+
+          {/* Login Button */}
+          <button type="submit" className="loginBtn">
+            Log In
+          </button>
+
+          {/* Forgot Password */}
+          <div className="login-forgotPassBtn">
+            <Link to="/forgotpassword">Forgot Password?</Link>
+          </div>
         </form>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <p>
-          Don't have an account? <Link to="/signup">Sign Up</Link>
+
+        {/* Error message */}
+        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+
+        {/* Redirect */}
+        <p className="login-redirect">
+          Don&apos;t have an account?{" "}
+          <Link to="/signup" className="login-redirect-link">
+            Sign Up
+          </Link>
         </p>
       </div>
     </div>

@@ -63,7 +63,7 @@ const ForgotPassword = () => {
         {message && <p className="success-message">{message}</p>}
         {error && <p className="error-message">{error}</p>}
         <p className="forgot-redirect">
-          Back to <Link to="/">Login</Link>
+          Back to <Link to="/login">Login</Link>
         </p>
       </div>
     </div>
