@@ -180,7 +180,7 @@ const Profile = () => {
             </button>
           </form>
           <div className="back-link">
-            <Link to="/">← Back to Dashboard</Link>
+            <Link to="/homepage">← Back to Dashboard</Link>
           </div>
         </div>
       </div>
