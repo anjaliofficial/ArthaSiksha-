@@ -1,19 +1,24 @@
-const jwt = require('jsonwebtoken');
+// In authMiddleware.js
 
-const authenticate = (req, res, next) => {
-    // Check Authorization header or cookie
-    const token = req.cookies.token || req.header('Authorization')?.split(' ')[1];
+const jwt = require("jsonwebtoken");
 
-    if (!token) 
-        return res.status(401).json({ message: 'No token, authorization denied' });
+const authMiddleware = (req, res, next) => {
+  const token = req.cookies?.token || req.headers["authorization"]?.split(" ")[1];
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (err) {
-        return res.status(401).json({ message: 'Token is not valid' });
-    }
+  if (!token) {
+    console.log("No token provided. Returning 401.");
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    console.log("Token decoded successfully. User ID:", req.userId);
+    next();
+  } catch (err) {
+    console.error("Token verification failed:", err.message); // Log the specific JWT error
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
 };
 
-module.exports = authenticate;
+module.exports = authMiddleware;

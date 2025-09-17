@@ -11,13 +11,10 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    address: "",
-    contact: "",
   });
-
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(""); // success/error message
-  const [error, setError] = useState(""); // error message
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -26,40 +23,22 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      setMessage("");
+      setError("Passwords do not match");
       return;
     }
-
     try {
       setLoading(true);
       setError("");
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/register",
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }
-      );
-
-      setMessage("✅ Successfully registered! Redirecting to login...");
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        address: "",
-        contact: "",
+      const res = await axios.post("http://localhost:3000/api/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
       });
-
-      // Redirect to login after 2 sec
+      setMessage("✅ Registered successfully! Redirecting...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong!");
-      setMessage("");
+      setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -68,14 +47,13 @@ const Signup = () => {
   return (
     <div className="signup-page">
       <div className="signup-container">
-        <a className="signup-backBtn" href="#">
+        <Link className="signup-backBtn" to="/">
           <IoArrowBackOutline />
-        </a>
+        </Link>
         <img className="signup-logo" src={logoWhite} alt="logo" />
 
         <form onSubmit={handleSubmit}>
           <input
-            className="signup-input"
             type="text"
             name="name"
             placeholder="Full Name"
@@ -84,7 +62,6 @@ const Signup = () => {
             required
           />
           <input
-            className="signup-input"
             type="email"
             name="email"
             placeholder="Email"
@@ -93,7 +70,6 @@ const Signup = () => {
             required
           />
           <input
-            className="signup-input"
             type="password"
             name="password"
             placeholder="Password"
@@ -102,7 +78,6 @@ const Signup = () => {
             required
           />
           <input
-            className="signup-input"
             type="password"
             name="confirmPassword"
             placeholder="Confirm Password"
@@ -110,39 +85,16 @@ const Signup = () => {
             onChange={handleChange}
             required
           />
-          <input
-            className="signup-input"
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-          />
-          <input
-            className="signup-input"
-            type="tel"
-            name="contact"
-            placeholder="Contact Number"
-            value={formData.contact}
-            onChange={handleChange}
-          />
-
-          <button className="signupBtn" type="submit" disabled={loading}>
+          <button type="submit" disabled={loading}>
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
-        {/* Show success or error message */}
-        {message && (
-          <p style={{ color: "green", marginTop: "10px" }}>{message}</p>
-        )}
-        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+        {message && <p style={{ color: "green" }}>{message}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <p className="signup-redirect">
-          Already have an account?{" "}
-          <Link to="/login" className="signup-redirect-link">
-            Log In
-          </Link>
+        <p>
+          Already have an account? <Link to="/login">Log In</Link>
         </p>
       </div>
     </div>

@@ -1,54 +1,98 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import { IoNotificationsCircleSharp } from "react-icons/io5";
 import { FaPlay, FaChevronRight, FaArrowRight } from "react-icons/fa";
-import pfp from "../assets/pfp.png";
 import logo from "../assets/logoWhite.png";
+import Footer from "../components/footer";
 import "./HomePage.css";
 
 const HomePage = () => {
+  const [user, setUser] = useState({ username: "Guest", profile_image: null });
+  const navigate = useNavigate();
+
+  // Fetch profile info on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/profile", {
+          withCredentials: true,
+        });
+        setUser({
+          username: res.data.username || "User",
+          profile_image: res.data.profile_image || null,
+        });
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        if (err.response && err.response.status === 401) {
+          navigate("/login");
+        } else {
+          setUser({ username: "Guest", profile_image: null });
+        }
+      }
+    };
+    fetchUser();
+  }, [navigate]);
+
+  const profileImageSrc =
+    user.profile_image && user.profile_image !== ""
+      ? `http://localhost:3000/uploads/${user.profile_image}`
+      : null;
+
   return (
     <div className="whole-home-page">
-      {/* Main content */}
-      <div className="main-content">
-        {/* Navbar */}
-        <nav className="navbar">
-          <div className="left">
-            <Link to="/" className="logo">
-              <img src={logo} alt="logo" />
-            </Link>
-          </div>
-          <div className="right">
-            <ul>
-              <li>
-                <Link to="/quizzes">Quizzes</Link>
-              </li>
-              <li>
-                <Link to="/lessons">Lessons</Link>
-              </li>
-              <li>
-                <Link to="/leaderboards">Leaderboards</Link>
-              </li>
-            </ul>
-            <Link to="/notifications" className="notification-bell">
-              <IoNotificationsCircleSharp />
-            </Link>
-            <Link to="/profile" className="profile">
-              <img src={pfp} alt="profile-pic" />
-            </Link>
-          </div>
-        </nav>
+      {/* Navbar */}
+      <nav className="navbar">
+        <div className="left">
+          <Link to="/" className="logo">
+            <img src={logo} alt="logo" />
+          </Link>
+        </div>
+        <div className="right">
+          <ul>
+            <li>
+              <Link to="/quizzes">Quizzes</Link>
+            </li>
+            <li>
+              <Link to="/lessons">Lessons</Link>
+            </li>
+            <li>
+              <Link to="/leaderboards">Leaderboards</Link>
+            </li>
+            <li>
+              <Link to="/settings">Settings</Link>
+            </li>
+          </ul>
+          <Link to="/notifications" className="notification-bell">
+            <IoNotificationsCircleSharp />
+          </Link>
+          <Link to="/profile">
+            {profileImageSrc ? (
+              <img
+                src={profileImageSrc}
+                alt="Profile"
+                className="profile-image"
+              />
+            ) : (
+              <span className="profile-image">👤</span>
+            )}
+          </Link>
+        </div>
+      </nav>
 
+      {/* Main content wrapper */}
+      <div className="main-content">
         <div className="line"></div>
 
         {/* Top Section */}
         <div className="top-three">
           <div className="welcoming">
-            <h1 className="welcomeText">Welcome, User</h1>
+            <h1 className="welcomeText">Welcome, {user.username}</h1>
             <p className="modules-text">You've completed 3/10 modules</p>
             <div className="progress-container">
               <div className="progress-bar">70%</div>
             </div>
+
             <div className="two-sides">
               <div className="mission">
                 <h3 className="mission-header">Today's Mission</h3>
@@ -159,11 +203,19 @@ const HomePage = () => {
                 <h2>Badges</h2>
                 <div className="more-badges">
                   <Link to="/badges" className="badgeArea">
-                    <img src="" alt="badge-img" className="image-badges" />
+                    <img
+                      src="/placeholder-badge.png"
+                      alt="badge-img"
+                      className="image-badges"
+                    />
                     <p>Budget Boss</p>
                   </Link>
                   <Link to="/badges" className="badgeArea">
-                    <img src="" alt="badge-img" className="image-badges" />
+                    <img
+                      src="/placeholder-badge.png"
+                      alt="badge-img"
+                      className="image-badges"
+                    />
                     <p>Savings Star</p>
                   </Link>
                 </div>
@@ -174,43 +226,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer>
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>About</h4>
-            <p>
-              Artha Shiksha is your platform for interactive financial
-              education.
-            </p>
-          </div>
-          <div className="footer-section">
-            <h4>Quick Links</h4>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/profile">Profile</Link>
-              </li>
-              <li>
-                <Link to="/lessons">Lessons</Link>
-              </li>
-              <li>
-                <Link to="/quizzes">Quizzes</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Subscribe</h4>
-            <input type="email" placeholder="Your email" />
-            <button className="subscribe-btn">Subscribe</button>
-          </div>
-        </div>
-        <div className="footer-bottom-text">
-          © 2025 Artha Shiksha. All rights reserved.
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

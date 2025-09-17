@@ -1,8 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const profileController = require('../controllers/profileController');
+const authMiddleware = require("../middleware/authentication");
+const { getProfile, updateProfile } = require("../controllers/profileController");
+const upload = require("../middleware/upload");
 
-router.get('/:id', profileController.getProfile);
-router.put('/:id', profileController.updateProfile);
+// Corrected route to use "profile_image"
+router.get("/", authMiddleware, getProfile);
+router.put("/", authMiddleware, upload.single("profile_image"), updateProfile);
 
 module.exports = router;

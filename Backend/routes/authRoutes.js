@@ -9,7 +9,7 @@ const {
 
 // ✅ Only use relative paths here, NOT full URLs
 router.post('/login', login);          // correct
-router.post('/register', register);    // correct
+router.post('/register', register); // available at /api/auth/register
 
 router.post('/forgot-password', sendResetLink);
 router.post('/reset-password', resetPasswordWithToken);
