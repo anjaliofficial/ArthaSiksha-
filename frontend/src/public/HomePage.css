@@ -3,17 +3,20 @@ html, body {
   padding: 0;
   height: 100%;
   font-family: 'Inter', sans-serif;
+
 }
 
 .whole-home-page {
  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+ display: flex;
+ flex-direction: column;
+
 
 .main-content {
   flex-grow: 1; /* ensures footer stays at bottom */
   padding: 20px 50px;
-  background-color: #fff;
+  background: linear-gradient(135deg, #f0f3f0, #e6eef3); /* subtle gradient background */
+
 }
 
 .navbar {
