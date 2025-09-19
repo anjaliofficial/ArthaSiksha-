@@ -47,12 +47,13 @@ const editArticle = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, body, tags } = req.body;
+        const tagsArray = Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim());
         if (req.user.role !== 'admin'){
             return res.status(403).json({message: 'Access denied. Admins only.'})
         }
         const updatedArticle = await pool.query(
             'UPDATE articles SET title = COALESCE($1, title), body = COALESCE($2, body), tags = COALESCE($3, tags), updated_at = NOW() WHERE id=$4 RETURNING *',
-            [title, body, tags, id]
+            [title, body, tagsArray, id]
         )
         if (updatedArticle.rows.length === 0)
             return res.status(404).json({ message: 'Article not found' });

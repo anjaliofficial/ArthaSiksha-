@@ -30,7 +30,8 @@ const AdminDashboard = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const moduleIdFromUrl = queryParams.get("moduleId");
-  const [activeTab, setActiveTab] = useState("users");
+  const tabFromUrl = queryParams.get("tab"); // e.g., ?tab=quizzes
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "users");
 
   // Modules state
   const [modules, setModules] = useState([]);
@@ -39,6 +40,12 @@ const AdminDashboard = () => {
   // Quizzes state
   const [quizzes, setQuizzes] = useState([]);
   const [editQuizData, setEditQuizData] = useState(null);
+  const [moduleId, setModuleId] = useState("");
+
+  const [questions, setQuestions] = useState([
+    { question_text: "", options: ["", "", "", ""], correct_answer: "" },
+  ]);
+
 
   // Quiz Options
   const [options, setOptions] = useState(["", "", "", ""]);
@@ -76,6 +83,18 @@ const AdminDashboard = () => {
     input.click();
   };
 
+  const openQuizModal = () => {
+    setShowCreateForm(true);
+    setEditQuizData(null);
+    setTitle("");
+    setDescription("");
+    setOptions(["", "", "", ""]);
+    const url = new URL(window.location);
+    url.searchParams.set("tab", "quizzes");
+    window.history.replaceState({}, "", url);
+  };
+
+
   // Fetch Modules
   useEffect(() => {
     const fetchModules = async () => {
@@ -109,29 +128,21 @@ const AdminDashboard = () => {
   }, []);
 
   // Fetch Quizzes
-useEffect(() => {
-  const fetchQuizzes = async () => {
-    try {
-      let res;
-      if (moduleIdFromUrl) {
-        res = await fetch(`http://localhost:3000/api/quizzes/getQuizzesByModule/${moduleIdFromUrl}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-      } else {
-        res = await fetch("http://localhost:3000/api/quizzes/getAllQuizzes", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const url = moduleIdFromUrl
+          ? `http://localhost:3000/api/quizzes/getQuizzesByModule/${moduleIdFromUrl}`
+          : "http://localhost:3000/api/quizzes/getAllQuizzes";
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        const data = await res.json();
+        if (res.ok) setQuizzes(data.quizzes);
+      } catch (err) {
+        console.error(err);
       }
-
-      const data = await res.json();
-      if (res.ok) setQuizzes(data.quizzes);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchQuizzes();
-}, [moduleIdFromUrl]);
+    };
+    fetchQuizzes();
+  }, [moduleIdFromUrl]);
 
 
   // ------------------- QUIZZES -------------------
@@ -141,11 +152,27 @@ useEffect(() => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await res.json();
+
       if (res.ok) {
         setEditQuizData(data.quiz);
-        setTitle(data.quiz.question);
-        setDescription(data.quiz.correct_answer);
-        setOptions(data.quiz.options || ["", "", "", ""]);
+        setModuleId(data.quiz.module_id || "");
+
+        const parsedQuestions = data.questions.map(q => {
+  let opts = [];
+  try {
+    opts = typeof q.options === "string" ? JSON.parse(q.options) : q.options;
+  } catch (err) {
+    opts = ["", "", "", ""]; // fallback
+  }
+  return {
+    id: q.id,
+    question_text: q.question_text || "",
+    options: opts.length ? opts : ["", "", "", ""],
+    correct_answer: q.correct_answer || "",
+  };
+});
+setQuestions(parsedQuestions);
+
         setShowCreateForm(true);
       }
     } catch (err) {
@@ -154,6 +181,8 @@ useEffect(() => {
     }
   };
 
+
+  // Delete quiz
   const handleDeleteQuiz = async (id) => {
     if (!window.confirm("Delete this quiz?")) return;
     try {
@@ -168,49 +197,72 @@ useEffect(() => {
     }
   };
 
+  // Save quiz
   const handleSaveQuiz = async () => {
-    if (!title || !description) return alert("Question and correct answer required");
+  if (!moduleId) return alert("Please select a module");
+  if (!questions.length) return alert("Add at least one question");
 
-    const payload = {
-      question: title,
-      options, // You can make a proper input later
-      correct_answer: description,
-      module_id: moduleIdFromUrl || null,
-    };
+  // Validate questions
+  for (const q of questions) {
+    if (!q.question_text.trim()) return alert("All questions must have text");
+    if (q.options.length < 2 || q.options.some(opt => !opt.trim()))
+      return alert("All options must be filled (at least 2)");
+    if (!q.correct_answer || (Array.isArray(q.correct_answer) && !q.correct_answer.length))
+      return alert("Correct answer required for each question");
+  }
 
-    try {
-      let response;
-      if (editQuizData) {
-        response = await fetch(`http://localhost:3000/api/quizzes/editQuiz/${editQuizData.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-          body: JSON.stringify(payload),
-        });
-      } else {
-        response = await fetch("http://localhost:3000/api/quizzes/createQuiz", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-          body: JSON.stringify(payload),
-        });
-      }
-
-      const data = await response.json();
-      if (response.ok) {
-        setShowCreateForm(false);
-        setTitle("");
-        setDescription("");
-        setEditQuizData(null);
-
-        if (editQuizData) setQuizzes((prev) => prev.map((q) => (q.id === data.quiz.id ? data.quiz : q)));
-        else setQuizzes((prev) => [...prev, data.quiz]);
-      } else alert(data.message || "Save failed");
-    } catch (err) {
-      console.error(err);
-      alert("Error saving quiz");
-    }
+  const payload = {
+    module_id: moduleId,
+    title, // Proper quiz title
+    questions: questions.map(q => ({
+      id: q.id,
+      question_text: q.question_text.trim(),
+      options: q.options.map(opt => opt.trim()).filter(opt => opt), // remove empty strings
+      correct_answer: Array.isArray(q.correct_answer)
+        ? q.correct_answer.map(ans => ans.trim())
+        : [q.correct_answer.trim()] // always send as array
+    })),
   };
 
+  try {
+    const url = editQuizData
+      ? `http://localhost:3000/api/quizzes/editQuiz/${editQuizData.id}`
+      : "http://localhost:3000/api/quizzes/createQuiz";
+    const method = editQuizData ? "PUT" : "POST";
 
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert("Quiz saved successfully!");
+      setShowCreateForm(false);
+      setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
+      setEditQuizData(null);
+
+      // Update local state
+      if (editQuizData) {
+        setQuizzes(prev =>
+          prev.map(q => (q.id === data.quiz.id ? { ...data.quiz, questions: data.questions } : q))
+        );
+      } else {
+        setQuizzes(prev => [...prev, { ...data.quiz, questions: data.questions }]);
+      }
+
+    } else {
+      alert(data.message || "Failed to save quiz");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error saving quiz");
+  }
+};
 
   // ------------------- MODULES -------------------
   const handleEditModule = async (id) => {
@@ -371,7 +423,7 @@ useEffect(() => {
     <div className="admin-dashboard-page">
       {/* Navbar */}
       <nav className="navbar">
-        <Link to="/">
+        <Link to="/admindashboard">
           <img src={logo} alt="Logo" className="logo-img" />
         </Link>
         <ul className="nav-links">
@@ -439,7 +491,17 @@ useEffect(() => {
         {activeTab === "modules" && (
           <div className="admin-section">
             <h2>Module Management</h2>
-            <button className="createNewModBtn" onClick={() => setShowCreateForm(true)}>
+            <button
+              className="createNewModBtn"
+              onClick={() => {
+                setActiveTab("modules");  // <--- Add this
+                setShowCreateForm(true);
+                setEditModuleData(null);
+                setTitle("");
+                setDescription("");
+                editor.commands.setContent("<p></p>");
+              }}
+            >
               Create New Module +
             </button>
 
@@ -455,34 +517,35 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Quizzes */}
-        {activeTab === "quizzes" && (
-          <div className="admin-section">
-            <h2>Quiz Management</h2>
-            <button
-              className="createNewModBtn"
-              onClick={() => {
-                setShowCreateForm(true);
-                setEditQuizData(null);
-                setTitle("");
-                setDescription("");
-              }}
-            >
-              Create New Quiz +
-            </button>
+        {/* Quizzes list */}
+        <section className="tab-content">
+          {activeTab === "quizzes" && (
+            <div className="admin-section">
+              <h2>Quiz Management</h2>
+              <button
+                className="createNewModBtn"
+                onClick={() => {
+                  setShowCreateForm(true);
+                  setActiveTab("quizzes");
+                  setEditQuizData(null); setTitle(""); setDescription(""); setOptions(["", "", "", ""]);
+                }}
+              >
+                Create New Quiz +
+              </button>
 
-            <ul className="module-list">
-              {quizzes.map((q) => (
-                <li key={q.id}>
-                  <Link to={`/admin/quizzes/view/${q.id}`}>{q.question}</Link>
-                  <button className="edit-btn" onClick={() => handleEditQuiz(q.id)}>Edit</button>{" "}
-                  <button className="delete-btn" onClick={() => handleDeleteQuiz(q.id)}>Delete</button>
-                </li>
+              <ul className="module-list">
+                {quizzes.map((q) => (
+                  <li key={q.id}>
+                    <span>{q.questions?.[0]?.question_text || "No question"}</span>
+                    <button className="edit-btn" onClick={() => handleEditQuiz(q.id)}>Edit</button>
+                    <button className="delete-btn" onClick={() => handleDeleteQuiz(q.id)}>Delete</button>
+                  </li>
+                ))}
 
-              ))}
-            </ul>
-          </div>
-        )}
+              </ul>
+            </div>
+          )}
+        </section>
 
 
         {/* Articles */}
@@ -494,6 +557,7 @@ useEffect(() => {
             <button
               className="createNewModBtn"
               onClick={() => {
+                setActiveTab("articles");
                 setShowCreateForm(true);
                 setEditArticleData(null); // ensure it's in "create" mode
                 setTitle("");
@@ -567,13 +631,14 @@ useEffect(() => {
         )}
       </section>
 
-      {/* Create/Edit Module/Article Modal */}
+
+      {/* Create/Edit Module/Article/Quiz Modal */}
       {showCreateForm && (
         <div className="createModuleOverlay">
           <div className="createModuleBg">
             <button className="close-btn" onClick={() => setShowCreateForm(false)}>✖</button>
 
-            {/* MODULES FORM */}
+            {/* MODULE FORM */}
             {activeTab === "modules" && (
               <>
                 <h2>{editModuleData ? "Edit Module" : "Create Module"}</h2>
@@ -591,12 +656,11 @@ useEffect(() => {
                 </div>
 
                 <EditorContent editor={editor} className="editor" />
-
-                <button className="saveModuleBtn" onClick={handleSave}>Save</button>
+                <button className="saveModuleBtn" onClick={handleSave}>Save Module</button>
               </>
             )}
 
-            {/* ARTICLES FORM */}
+            {/* ARTICLE FORM */}
             {activeTab === "articles" && (
               <>
                 <h2>{editArticleData ? "Edit Article" : "Create Article"}</h2>
@@ -614,65 +678,135 @@ useEffect(() => {
                 </div>
 
                 <EditorContent editor={editor} className="editor" />
-
-                <button className="saveModuleBtn" onClick={handleSave}>Save</button>
+                <button className="saveModuleBtn" onClick={handleSave}>Save Article</button>
               </>
             )}
 
-            {/* QUIZZES FORM */}
+            {/* QUIZ FORM */}
+            {/* QUIZ FORM */}
             {activeTab === "quizzes" && (
               <>
                 <h2>{editQuizData ? "Edit Quiz" : "Create Quiz"}</h2>
+                <label>Quiz Title</label>
+<input
+  type="text"
+  value={title}
+  placeholder="Enter quiz title"
+  onChange={(e) => setTitle(e.target.value)}
+/>
 
-                <label>Question</label>
-                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <label>Module</label>
+                <select value={moduleId} onChange={(e) => setModuleId(e.target.value)}>
+                  <option value="">Select Module</option>
+                  {modules.map((m) => (
+                    <option key={m.id} value={m.id}>{m.title}</option>
+                  ))}
+                </select>
 
-                <label>Correct Answer</label>
-                <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <div className="questions-container">
+                  {questions.map((q, qIdx) => (
+                    <div key={qIdx} className="question-block">
+                      <div className="question-header">
+                        <h4>Question {qIdx + 1}</h4>
+                        <button
+                          className="remove-btn"
+                          onClick={() => {
+                            const newQuestions = questions.filter((_, i) => i !== qIdx);
+                            setQuestions(newQuestions);
+                          }}
+                        >
+                          Remove Question
+                        </button>
+                      </div>
 
-                <label>Options</label>
-                {options.map((opt, idx) => (
-                  <div key={idx} style={{ display: "flex", marginBottom: "5px" }}>
-                    <input
-                      type="text"
-                      value={opt}
-                      placeholder={`Option ${idx + 1}`}
-                      onChange={(e) => {
-                        const newOptions = [...options];
-                        newOptions[idx] = e.target.value;
-                        setOptions(newOptions);
-                      }}
-                      style={{ flex: 1, marginRight: "5px" }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newOptions = options.filter((_, i) => i !== idx);
-                        setOptions(newOptions);
-                      }}
-                    >
-                      ❌
-                    </button>
-                  </div>
-                ))}
+                      <input
+                        type="text"
+                        value={q.question_text}
+                        placeholder="Enter question text"
+                        onChange={(e) => {
+                          const newQuestions = [...questions];
+                          newQuestions[qIdx].question_text = e.target.value;
+                          setQuestions(newQuestions);
+                        }}
+                      />
+
+                      <div className="options-container">
+                        {q.options.map((opt, optIdx) => (
+                          <div key={optIdx} className="option-row">
+                            <input
+                              type="text"
+                              value={opt}
+                              placeholder={`Option ${optIdx + 1}`}
+                              onChange={(e) => {
+                                const newQuestions = [...questions];
+                                newQuestions[qIdx].options[optIdx] = e.target.value;
+                                setQuestions(newQuestions);
+                              }}
+                            />
+                            <button
+                              className="remove-btn"
+                              onClick={() => {
+                                const newQuestions = [...questions];
+                                newQuestions[qIdx].options = newQuestions[qIdx].options.filter((_, i) => i !== optIdx);
+                                setQuestions(newQuestions);
+                              }}
+                            >
+                              ✖
+                            </button>
+                          </div>
+                        ))}
+
+                        <button
+                          className="add-btn"
+                          onClick={() => {
+                            const newQuestions = [...questions];
+                            newQuestions[qIdx].options.push("");
+                            setQuestions(newQuestions);
+                          }}
+                        >
+                          + Add Option
+                        </button>
+                      </div>
+
+                      <label>Correct Answer</label>
+                      <select
+                        value={q.correct_answer}
+                        onChange={(e) => {
+                          const newQuestions = [...questions];
+                          newQuestions[qIdx].correct_answer = e.target.value;
+                          setQuestions(newQuestions);
+                        }}
+                      >
+                        <option value="">Select correct option</option>
+                        {q.options.map((opt, idx) => (
+                          <option key={idx} value={opt}>
+                            {opt || `Option ${idx + 1}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => setOptions([...options, ""])}
-                  style={{ marginTop: "5px" }}
+                  className="add-btn"
+                  onClick={() =>
+                    setQuestions([...questions, { question_text: "", options: ["", ""], correct_answer: "" }])
+                  }
                 >
-                  ➕ Add Option
+                  + Add Question
                 </button>
 
-
-                <button className="saveModuleBtn" onClick={handleSaveQuiz}>Save</button>
+                <button className="saveModuleBtn" onClick={handleSaveQuiz}>
+                  Save Quiz
+                </button>
               </>
             )}
           </div>
         </div>
       )}
-
     </div>
-  );
-};
+  )
+}
 
 export default AdminDashboard;
