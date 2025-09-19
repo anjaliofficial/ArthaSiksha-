@@ -80,20 +80,15 @@ const deleteArticle = async (req, res) => {
 }
 
 const searchArticles = async (req, res) => {
-    try {
-        const { query } = req.query;
-        const searchResults = await pool.query(
-            `SELECT * FROM articles WHERE title ILIKE $1 OR body ILIKE $1 OR $1 ILIKE ANY(tags)`,
-            [`%${query}%`]
-        );
-        if (searchResults.rows.length === 0)
-            return res.status(404).json({ message: 'No articles found matching the query' });
-        res.status(200).json({ articles: searchResults.rows });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-}
+  const query = req.query.query || '';
+  const articles = await pool.query(
+    `SELECT * FROM articles 
+     WHERE title ILIKE $1`,
+    [`%${query}%`]
+  );
+  res.json({ ok: true, articles: articles.rows });
+};
+
 
 module.exports = {
     getAllArticles,

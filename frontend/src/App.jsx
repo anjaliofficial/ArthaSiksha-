@@ -26,6 +26,8 @@ const QuizPage = lazy(() => import("./public/QuizPage"));
 const ResetPassword = lazy(() => import("./public/ResetPassword"));
 const ModulePage = lazy(() => import("./public/ModulePage"));
 const ArticlePage = lazy(() => import("./public/ArticlePage"));
+const ArticlesPageUser = lazy(() => import("./public/ArticlesPageUser"))
+const ArticleDetailUser = lazy(() => import("./public/ArticleDetailUser"))
 
 function App() {
   return (
@@ -52,6 +54,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/modules/:id" element={<ModulePage />} />
           <Route path="/admin/articles/:id" element={<ArticlePage />} />
+          <Route path="/articles" element={<ArticlesPageUser />} />
+          <Route path="/articles/:id" element={<ArticleDetailUser />} />
         </Routes>
       </Suspense>
     </Router>

@@ -1,47 +1,157 @@
-/* ModulesPage.css / ModuleDetail.css shared easy styles */
-.modules-page, .module-detail-page {
-  max-width: 1000px;
-  margin: 32px auto;
-  padding: 0 16px;
-  font-family: Inter, system-ui, sans-serif;
+/* src/pages/ModulesPage.css */
+
+.modules-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: "Inter", sans-serif;
+  color: #333;
 }
 
+/* Header */
 .modules-header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  background: #fff;
 }
+
+.modules-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #00c97f;
+}
+
+.modules-controls {
+  display: flex;
+  justify-content: center;
+}
+
 .modules-search {
-  padding:8px 10px;
-  border-radius:6px;
-  border:1px solid #ddd;
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #00c97f;
+  border-radius: 50px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease-in-out;
 }
 
-.module-list { list-style:none; padding:0; margin:20px 0; display:grid; gap:12px; }
+.modules-search:focus {
+  border-color: #00a76a;
+  box-shadow: 0 0 6px rgba(0, 201, 127, 0.4);
+}
+
+/* Loading / Empty */
+.loading,
+.empty {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: #777;
+}
+
+/* Modules List */
+.module-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  list-style: none;
+  margin: 0;
+}
+
 .module-card {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px;
-  border-radius:8px;
-  border:1px solid #eee;
-  background:#fff;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.module-title { margin:0 0 6px 0; }
-.module-desc { margin:0; color:#666; }
-.view-btn, .take-quiz-btn, .back-link {
-  text-decoration:none;
-  padding:8px 12px;
-  border-radius:6px;
-  border:1px solid #d8d8d8;
-  background:#fafafa;
-}
-.loading, .empty { padding:20px 0; color:#666; }
 
-/* Module detail */
-.module-header { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
-.module-meta { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
-.module-content { border:1px solid #eee; border-radius:8px; padding:16px; background:#fff; min-height:160px; margin-bottom:18px; }
-.module-quizzes ul { list-style:none; padding:0; }
-.module-quizzes li { padding:8px 0; border-bottom:1px dashed #eee; display:flex; justify-content:space-between; align-items:center; }
+.module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.module-card-left {
+  flex: 1;
+}
+
+.module-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #00c97f;
+}
+
+.module-title a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.module-title a:hover {
+  text-decoration: underline;
+}
+
+.module-desc {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Right side (View button) */
+.module-card-right {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.view-btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: #00c97f;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.view-btn:hover {
+  background: #00a76a;
+}
+
+/* Footer stick to bottom */
+.modules-page > footer {
+  margin-top: auto;
+}
+
+.modules-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  color: #333;
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #eaeaea;
+  border-color: #bbb;
+}
+

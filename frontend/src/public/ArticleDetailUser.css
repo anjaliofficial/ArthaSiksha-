@@ -1,0 +1,116 @@
+/* src/pages/ArticleDetailUser.css */
+
+/* General page layout */
+.article-detail-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+}
+
+/* Navbar */
+.article-detail-page > nav {
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Article header */
+.article-header {
+  max-width: 900px;       /* same as article-body */
+  margin: 2rem auto 1rem auto; /* center horizontally */
+  padding: 0 2rem;        /* same padding as article-body for alignment */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* stack vertically and align left */
+  gap: 0.5rem;
+}
+
+.back-btn {
+  background-color: #e6f4ea;
+  color: #2f855a;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #c6f0d0;
+}
+
+.article-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a202c;
+  margin: 0; /* remove extra margin */
+}
+
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background-color: #e6f4ea;
+  color: #2f855a;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+
+/* Article body */
+.article-body {
+  max-width: 900px;
+  margin: 0 auto 3rem auto;
+  padding: 0 1rem;
+  line-height: 1.7;
+  font-size: 1.1rem;
+  color: #2d3748;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  padding: 2rem;
+}
+
+/* TipTap content styling */
+.article-body .ProseMirror {
+  outline: none;
+}
+
+.article-body p {
+  margin-bottom: 1rem;
+}
+
+.article-body img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Loading / empty states */
+.loading,
+.empty {
+  text-align: center;
+  margin: 4rem 0;
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .article-title {
+    font-size: 2rem;
+  }
+
+  .article-body {
+    padding: 1.5rem;
+  }
+}

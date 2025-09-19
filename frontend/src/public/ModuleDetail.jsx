@@ -4,6 +4,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import Navbar from "../components/navbarAfterLogin";
+import Footer from "../components/footer";
 import "./ModuleDetail.css";
 
 const ModuleDetail = () => {
@@ -14,6 +16,7 @@ const ModuleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quizzes, setQuizzes] = useState([]);
   const [progressing, setProgressing] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   const editor = useEditor({
     editable: false,
@@ -33,19 +36,20 @@ const ModuleDetail = () => {
           return;
         }
         const data = await res.json();
-        if (res.ok) {
-          // handle content that may be stored as JSON string or object
+        if(res.ok) {
+          setModule(data.module);
+          setCompleted(data.completed || false); // 👈 restore from DB
+          // set editor content safely
           const rawContent = data.module?.content;
           let contentToSet = rawContent;
           try {
             if (typeof rawContent === "string") contentToSet = JSON.parse(rawContent);
-          } catch (err) {
-            // content is probably HTML string or plain text
+          } catch {
             contentToSet = rawContent;
           }
           setModule(data.module);
-          // set editor content safely
           setTimeout(() => editor?.commands?.setContent(contentToSet || "<p></p>"), 0);
+
         } else {
           alert(data.message || "Module not found");
         }
@@ -77,36 +81,50 @@ const ModuleDetail = () => {
   }, [id, editor, navigate]);
 
   const handleMarkComplete = async () => {
-    if (!window.confirm("Mark this module as complete?")) return;
+    const action = completed ? "uncomplete" : "complete"; // decide action
+    if (!window.confirm(`Are you sure you want to ${action} this module?`)) return;
+
     setProgressing(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/modules/completeModule/${id}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await fetch(
+        `http://localhost:3000/api/modules/${action}Module/${id}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
       if (res.status === 401) {
         navigate("/login");
         return;
       }
+
       const data = await res.json();
       if (res.ok) {
-        alert(data.message || "Module marked complete!");
+        // ✅ update only the "completed" state
+        setCompleted(!completed);
+        alert(
+          data.message ||
+          `Module ${completed ? "marked incomplete" : "marked complete"}!`
+        );
       } else {
-        alert(data.message || "Failed to mark complete");
+        alert(data.message || "Failed to update module");
       }
     } catch (err) {
-      console.error("Error marking module complete:", err);
-      alert("Error marking module complete");
+      console.error("Error updating module:", err);
+      alert("Error updating module");
     } finally {
       setProgressing(false);
     }
   };
+
 
   if (loading) return <p className="loading">Loading module…</p>;
   if (!module) return <p className="empty">Module not found.</p>;
 
   return (
     <div className="module-detail-page">
+      <Navbar />
       <header className="module-header">
         <Link to="/modules" className="back-link">← Back to modules</Link>
         <h1>{module.title}</h1>
@@ -115,10 +133,21 @@ const ModuleDetail = () => {
       <section className="module-meta">
         <p className="module-desc">{module.description}</p>
         <div className="module-actions">
-          <button onClick={handleMarkComplete} disabled={progressing}>
-            {progressing ? "Marking..." : "Mark as Complete"}
+          <button
+            onClick={handleMarkComplete}
+            disabled={progressing}
+            className={completed ? "completed-btn" : "complete-btn"}
+          >
+            {progressing
+              ? completed
+                ? "Updating..."
+                : "Marking..."
+              : completed
+                ? "✓ Completed"
+                : "Mark as Complete"}
           </button>
         </div>
+
       </section>
 
       <section className="module-content">
@@ -145,6 +174,7 @@ const ModuleDetail = () => {
           </ul>
         )}
       </section>
+      <Footer />
     </div>
   );
 };

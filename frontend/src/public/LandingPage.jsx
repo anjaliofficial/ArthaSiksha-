@@ -107,9 +107,6 @@ const LandingPage = () => {
           <li onClick={() => scrollToSection(heroRef)}>Home</li>
           <li onClick={() => scrollToSection(featuresRef)}>Features</li>
           <li onClick={() => scrollToSection(learnRef)}>Learn</li>
-          <li onClick={() => navigate("/profile")}>
-            <FaUserCircle /> Profile
-          </li>
           <li>
             <FaBell
               size={18}
