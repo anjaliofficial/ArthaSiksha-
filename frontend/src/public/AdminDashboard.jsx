@@ -33,6 +33,9 @@ const AdminDashboard = () => {
   const tabFromUrl = queryParams.get("tab"); // e.g., ?tab=quizzes
   const [activeTab, setActiveTab] = useState(tabFromUrl || "users");
 
+  // Add at top with other useState
+  const [adminProfile, setAdminProfile] = useState({ username: "", email: "" });
+
   // Modules state
   const [modules, setModules] = useState([]);
   const [editModuleData, setEditModuleData] = useState(null);
@@ -65,6 +68,11 @@ const AdminDashboard = () => {
     content: "<p></p>",
     editorProps: { attributes: { class: "editor-content" } },
   });
+
+  const handleLogout = () => {
+  localStorage.removeItem("token"); // Remove the JWT
+  window.location.href = "/login";   // Redirect to login page
+};
 
   const addImage = () => {
     const input = document.createElement("input");
@@ -110,6 +118,47 @@ const AdminDashboard = () => {
     };
     fetchModules();
   }, []);
+
+  // Fetch admin profile when dashboard mounts
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/profile", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setAdminProfile({ username: data.username || "", email: data.email || "" });
+        }
+      } catch (err) {
+        console.error("Error fetching admin profile:", err);
+      }
+    };
+    fetchAdminProfile();
+  }, []);
+
+  // Save admin profile
+  const handleSaveAdminProfile = async () => {
+    try {
+      const payload = { username: adminProfile.username, email: adminProfile.email };
+      const res = await fetch("http://localhost:3000/api/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) alert("✅ Profile updated successfully!");
+      else alert(data.message || "❌ Failed to update profile");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error updating profile");
+    }
+  };
+
+
 
   // Fetch Articles
   useEffect(() => {
@@ -158,20 +207,20 @@ const AdminDashboard = () => {
         setModuleId(data.quiz.module_id || "");
 
         const parsedQuestions = data.questions.map(q => {
-  let opts = [];
-  try {
-    opts = typeof q.options === "string" ? JSON.parse(q.options) : q.options;
-  } catch (err) {
-    opts = ["", "", "", ""]; // fallback
-  }
-  return {
-    id: q.id,
-    question_text: q.question_text || "",
-    options: opts.length ? opts : ["", "", "", ""],
-    correct_answer: q.correct_answer || "",
-  };
-});
-setQuestions(parsedQuestions);
+          let opts = [];
+          try {
+            opts = typeof q.options === "string" ? JSON.parse(q.options) : q.options;
+          } catch (err) {
+            opts = ["", "", "", ""]; // fallback
+          }
+          return {
+            id: q.id,
+            question_text: q.question_text || "",
+            options: opts.length ? opts : ["", "", "", ""],
+            correct_answer: q.correct_answer || "",
+          };
+        });
+        setQuestions(parsedQuestions);
 
         setShowCreateForm(true);
       }
@@ -199,70 +248,70 @@ setQuestions(parsedQuestions);
 
   // Save quiz
   const handleSaveQuiz = async () => {
-  if (!moduleId) return alert("Please select a module");
-  if (!questions.length) return alert("Add at least one question");
+    if (!moduleId) return alert("Please select a module");
+    if (!questions.length) return alert("Add at least one question");
 
-  // Validate questions
-  for (const q of questions) {
-    if (!q.question_text.trim()) return alert("All questions must have text");
-    if (q.options.length < 2 || q.options.some(opt => !opt.trim()))
-      return alert("All options must be filled (at least 2)");
-    if (!q.correct_answer || (Array.isArray(q.correct_answer) && !q.correct_answer.length))
-      return alert("Correct answer required for each question");
-  }
-
-  const payload = {
-    module_id: moduleId,
-    title, // Proper quiz title
-    questions: questions.map(q => ({
-      id: q.id,
-      question_text: q.question_text.trim(),
-      options: q.options.map(opt => opt.trim()).filter(opt => opt), // remove empty strings
-      correct_answer: Array.isArray(q.correct_answer)
-        ? q.correct_answer.map(ans => ans.trim())
-        : [q.correct_answer.trim()] // always send as array
-    })),
-  };
-
-  try {
-    const url = editQuizData
-      ? `http://localhost:3000/api/quizzes/editQuiz/${editQuizData.id}`
-      : "http://localhost:3000/api/quizzes/createQuiz";
-    const method = editQuizData ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      alert("Quiz saved successfully!");
-      setShowCreateForm(false);
-      setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
-      setEditQuizData(null);
-
-      // Update local state
-      if (editQuizData) {
-        setQuizzes(prev =>
-          prev.map(q => (q.id === data.quiz.id ? { ...data.quiz, questions: data.questions } : q))
-        );
-      } else {
-        setQuizzes(prev => [...prev, { ...data.quiz, questions: data.questions }]);
-      }
-
-    } else {
-      alert(data.message || "Failed to save quiz");
+    // Validate questions
+    for (const q of questions) {
+      if (!q.question_text.trim()) return alert("All questions must have text");
+      if (q.options.length < 2 || q.options.some(opt => !opt.trim()))
+        return alert("All options must be filled (at least 2)");
+      if (!q.correct_answer || (Array.isArray(q.correct_answer) && !q.correct_answer.length))
+        return alert("Correct answer required for each question");
     }
-  } catch (err) {
-    console.error(err);
-    alert("Error saving quiz");
-  }
-};
+
+    const payload = {
+      module_id: moduleId,
+      title, // Proper quiz title
+      questions: questions.map(q => ({
+        id: q.id,
+        question_text: q.question_text.trim(),
+        options: q.options.map(opt => opt.trim()).filter(opt => opt), // remove empty strings
+        correct_answer: Array.isArray(q.correct_answer)
+          ? q.correct_answer.map(ans => ans.trim())
+          : [q.correct_answer.trim()] // always send as array
+      })),
+    };
+
+    try {
+      const url = editQuizData
+        ? `http://localhost:3000/api/quizzes/editQuiz/${editQuizData.id}`
+        : "http://localhost:3000/api/quizzes/createQuiz";
+      const method = editQuizData ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Quiz saved successfully!");
+        setShowCreateForm(false);
+        setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
+        setEditQuizData(null);
+
+        // Update local state
+        if (editQuizData) {
+          setQuizzes(prev =>
+            prev.map(q => (q.id === data.quiz.id ? { ...data.quiz, questions: data.questions } : q))
+          );
+        } else {
+          setQuizzes(prev => [...prev, { ...data.quiz, questions: data.questions }]);
+        }
+
+      } else {
+        alert(data.message || "Failed to save quiz");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving quiz");
+    }
+  };
 
   // ------------------- MODULES -------------------
   const handleEditModule = async (id) => {
@@ -433,6 +482,8 @@ setQuestions(parsedQuestions);
           <li onClick={() => setActiveTab("articles")}>Articles</li>
           <li onClick={() => setActiveTab("analytics")}>Analytics</li>
           <li onClick={() => setActiveTab("feedback")}>Feedback</li>
+          <li onClick={() => setActiveTab("settings")}>Settings</li>
+
         </ul>
       </nav>
 
@@ -683,17 +734,16 @@ setQuestions(parsedQuestions);
             )}
 
             {/* QUIZ FORM */}
-            {/* QUIZ FORM */}
             {activeTab === "quizzes" && (
               <>
                 <h2>{editQuizData ? "Edit Quiz" : "Create Quiz"}</h2>
                 <label>Quiz Title</label>
-<input
-  type="text"
-  value={title}
-  placeholder="Enter quiz title"
-  onChange={(e) => setTitle(e.target.value)}
-/>
+                <input
+                  type="text"
+                  value={title}
+                  placeholder="Enter quiz title"
+                  onChange={(e) => setTitle(e.target.value)}
+                />
 
                 <label>Module</label>
                 <select value={moduleId} onChange={(e) => setModuleId(e.target.value)}>
@@ -805,6 +855,33 @@ setQuestions(parsedQuestions);
           </div>
         </div>
       )}
+       {activeTab === "settings" && (
+              <div className="admin-section">
+                <h2>Admin Settings</h2>
+                <div className="settings-card">
+                  <label>Username</label>
+                  <input
+                    type="text"
+                    value={adminProfile.username}
+                    placeholder="Enter username"
+                    onChange={(e) => setAdminProfile({ ...adminProfile, username: e.target.value })}
+                  />
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={adminProfile.email}
+                    placeholder="Enter email"
+                    onChange={(e) => setAdminProfile({ ...adminProfile, email: e.target.value })}
+                  />
+                  <button className="small-btn" onClick={handleSaveAdminProfile}>
+                    Save Changes
+                  </button>
+                </div>
+                <button className="logout-btn" onClick={handleLogout}>
+        Logout
+      </button>
+              </div>
+            )}
     </div>
   )
 }

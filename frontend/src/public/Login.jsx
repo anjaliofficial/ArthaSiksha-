@@ -67,7 +67,7 @@ const Login = () => {
         <button
           type="button"
           className="login-backBtn"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
         >
           <IoArrowBackOutline />
         </button>

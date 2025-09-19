@@ -493,6 +493,81 @@
   color: #fff;
 }
 
+/* Settings Section */
+.admin-section {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-section h2 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+.settings-card label {
+  font-weight: 500;
+  color: #555;
+}
+
+.settings-card input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.settings-card input:focus {
+  outline: none;
+  border-color: #B5F042;
+  box-shadow: 0 0 0 2px rgba(181, 240, 66, 0.2);
+}
+
+.settings-card .small-btn {
+  padding: 10px 15px;
+  background-color: #B5F042;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.settings-card .small-btn:hover {
+  background-color: #9acc38;
+}
+
+.logout-btn {
+  padding: 8px 12px;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #e04344;
+}
 
 
 
