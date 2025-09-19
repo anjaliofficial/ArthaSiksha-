@@ -7,7 +7,7 @@ import "./Signup.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -31,7 +31,7 @@ const Signup = () => {
       setLoading(true);
       setError("");
       await axios.post("http://localhost:3000/api/auth/register", {
-        name: formData.name,
+        username: formData.username,
         email: formData.email,
         password: formData.password,
       });
@@ -63,10 +63,10 @@ const Signup = () => {
           <input
             id="name"
             type="text"
-            name="name"
+            name="username"
             className="signup-input"
             placeholder="Enter your full name"
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
             required
           />

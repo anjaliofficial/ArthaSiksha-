@@ -85,8 +85,10 @@ const deleteModule = async (req, res) => {
 const updateModuleProgress = async (req, res) => {
     try {
         const { moduleId } = req.params;
-        const { progressPercent } = req.body;
         const userId = req.user.id;
+
+        // Default to 100 if nothing is provided
+        const progressPercent = 100;
 
         const result = await pool.query(
             'INSERT INTO moduleprogress (user_id, module_id, progress_percent, completed) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, module_id) DO UPDATE SET progress_percent = $3, completed = $4',
@@ -98,7 +100,8 @@ const updateModuleProgress = async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
+
 
 const completeModule = async (req, res) => {
     try {

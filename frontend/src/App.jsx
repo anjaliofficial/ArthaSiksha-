@@ -21,6 +21,7 @@ const Notifications = lazy(() => import("./public/Notifications"));
 const AdminDashboard = lazy(() => import("./public/AdminDashboard"));
 const Feedback = lazy(() => import("./public/Feedback"));
 const ModulesPage = lazy(() => import("./public/Modulespage"));
+const ModuleDetail = lazy(() => import("./public/ModuleDetail"));
 const QuizPage = lazy(() => import("./public/QuizPage"));
 const ResetPassword = lazy(() => import("./public/ResetPassword"));
 const ModulePage = lazy(() => import("./public/ModulePage"));
@@ -46,6 +47,7 @@ function App() {
           <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/modules" element={<ModulesPage />} />
+          <Route path="/modules/:id" element={<ModuleDetail />} />
           <Route path="/admin/quizzes/view/:quizId" element={<QuizPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/modules/:id" element={<ModulePage />} />

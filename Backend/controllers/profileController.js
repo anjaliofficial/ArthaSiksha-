@@ -6,7 +6,7 @@ const path = require("path");
 
 // ---------------- GET PROFILE ----------------
 const getProfile = async (req, res) => {
-  if (!req.userId) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ message: "Unauthorized: Please log in." });
   }
 
@@ -14,7 +14,7 @@ const getProfile = async (req, res) => {
     const userRes = await pool.query(
       // Change 'profile_pic' to 'profile_image' in the SELECT statement
       "SELECT id, username, email, age, occupation, financial_goal, address, contact, profile_image FROM users WHERE id=$1",
-      [req.userId]
+      [req.user.id]
     );
 
     if (userRes.rows.length === 0) {
@@ -56,7 +56,7 @@ const updateProfile = async (req, res) => {
        WHERE id=$9
        RETURNING id, username, email, age, occupation, financial_goal, address, contact, profile_image`,
       // Pass the sanitizedAge here
-      [username, email, sanitizedAge, occupation, financial_goal, address, contact, profileImage, req.userId]
+      [username, email, sanitizedAge, occupation, financial_goal, address, contact, profileImage, req.user.id]
     );
 
     res.status(200).json({ message: "Profile updated", user: updatedRes.rows[0] });

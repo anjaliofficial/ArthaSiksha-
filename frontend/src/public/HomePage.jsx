@@ -16,7 +16,7 @@ const HomePage = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/profile", {
-          withCredentials: true,
+          headers: {Authorization: `Bearer ${localStorage.getItem("token")}`}
         });
         setUser({
           username: res.data.username || "User",
@@ -54,7 +54,7 @@ const HomePage = () => {
               <Link to="/quizzes">Quizzes</Link>
             </li>
             <li>
-              <Link to="/lessons">Lessons</Link>
+              <Link to="/modules">Lessons</Link>
             </li>
             <li>
               <Link to="/leaderboards">Leaderboards</Link>
