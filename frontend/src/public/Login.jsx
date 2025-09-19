@@ -1,89 +1,137 @@
+// Login.jsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import logoWhite from "../assets/logoWhite.png";
+import { IoArrowBackOutline } from "react-icons/io5";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
 import "./Login.css";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      setError("");
-      await axios.post("http://localhost:3000/api/auth/login", formData, {
-        withCredentials: true,
-      });
-      navigate("/homepage"); // redirect to homepage
+      setLoading(true);
+      setMessage({ text: "", type: "" });
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/login",
+        { email: formData.email, password: formData.password },
+        { withCredentials: true } // important for cookies
+      );
+
+      const { token, user } = response.data;
+      console.log(user);
+      // Store user data in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setMessage({ text: "✅ Login successful!", type: "success" });
+
+      setTimeout(() => {
+        if (user.role === "admin"){
+          navigate("/admindashboard");
+        } else {
+        navigate("/homepage"); // redirect after login
+        }
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setMessage({
+        text: err.response?.data?.message || "❌ Invalid email or password!",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        {/* Logo */}
+        {/* Back button (optional, you can make it navigate back instead of href="#") */}
+        <button
+          type="button"
+          className="login-backBtn"
+          onClick={() => navigate(-1)}
+        >
+          <IoArrowBackOutline />
+        </button>
+
         <img className="login-logo" src={logoWhite} alt="logo" />
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Email */}
-          <label className="login-label" htmlFor="email">
-            Email
-          </label>
           <input
-            id="email"
+            className="login-inputEmail"
             type="email"
             name="email"
-            className="login-inputEmail"
-            placeholder="Enter your email"
+            placeholder="Email"
             value={formData.email}
             onChange={handleChange}
             required
           />
-
-          {/* Password */}
-          <label className="login-label" htmlFor="password">
-            Password
-          </label>
           <input
-            id="password"
+            className="login-inputPassword"
             type="password"
             name="password"
-            className="login-inputPassword"
-            placeholder="Enter your password"
+            placeholder="********"
             value={formData.password}
             onChange={handleChange}
             required
           />
 
-          {/* Login Button */}
-          <button type="submit" className="loginBtn">
-            Log In
+          <button className="loginBtn" type="submit" disabled={loading}>
+            {loading ? "Logging In..." : "Log In"}
           </button>
-
-          {/* Forgot Password */}
-          <div className="login-forgotPassBtn">
-            <Link to="/forgotpassword">Forgot Password?</Link>
-          </div>
         </form>
 
-        {/* Error message */}
-        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+        {message.text && (
+          <p
+            style={{
+              marginTop: "10px",
+              color: message.type === "success" ? "green" : "red",
+              fontWeight: "bold",
+              textAlign: "center",
+            }}
+          >
+            {message.text}
+          </p>
+        )}
 
-        {/* Redirect */}
+        {/* ✅ Fixed: no nested <a> tags */}
+        <Link to="/forgotpassword" className="login-forgotPassBtn">
+          Forgot Password
+        </Link>
+
         <p className="login-redirect">
-          Don&apos;t have an account?{" "}
+          Don’t have an account?{" "}
           <Link to="/signup" className="login-redirect-link">
             Sign Up
           </Link>
         </p>
+
+        <div className="login-social-icons">
+          <a href="#" className="login-google-icon">
+            <FcGoogle />
+          </a>
+          <a href="#" className="login-facebook-icon">
+            <FaFacebook />
+          </a>
+        </div>
       </div>
     </div>
   );

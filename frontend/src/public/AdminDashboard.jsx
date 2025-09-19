@@ -8,6 +8,8 @@ import Image from "@tiptap/extension-image";
 import "./AdminDashboard.css";
 import logo from "../assets/logoWhite.png";
 import Placeholder from '@tiptap/extension-placeholder';
+import { useLocation } from "react-router-dom";
+
 
 // Chart.js
 import {
@@ -24,11 +26,23 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const moduleIdFromUrl = queryParams.get("moduleId");
   const [activeTab, setActiveTab] = useState("users");
 
   // Modules state
   const [modules, setModules] = useState([]);
   const [editModuleData, setEditModuleData] = useState(null);
+
+  // Quizzes state
+  const [quizzes, setQuizzes] = useState([]);
+  const [editQuizData, setEditQuizData] = useState(null);
+
+  // Quiz Options
+  const [options, setOptions] = useState(["", "", "", ""]);
+
 
   // Articles state
   const [articles, setArticles] = useState([]);
@@ -93,6 +107,110 @@ const AdminDashboard = () => {
     };
     fetchArticles();
   }, []);
+
+  // Fetch Quizzes
+useEffect(() => {
+  const fetchQuizzes = async () => {
+    try {
+      let res;
+      if (moduleIdFromUrl) {
+        res = await fetch(`http://localhost:3000/api/quizzes/getQuizzesByModule/${moduleIdFromUrl}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+      } else {
+        res = await fetch("http://localhost:3000/api/quizzes/getAllQuizzes", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+      }
+
+      const data = await res.json();
+      if (res.ok) setQuizzes(data.quizzes);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchQuizzes();
+}, [moduleIdFromUrl]);
+
+
+  // ------------------- QUIZZES -------------------
+  const handleEditQuiz = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/quizzes/GetQuizByID/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEditQuizData(data.quiz);
+        setTitle(data.quiz.question);
+        setDescription(data.quiz.correct_answer);
+        setOptions(data.quiz.options || ["", "", "", ""]);
+        setShowCreateForm(true);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching quiz");
+    }
+  };
+
+  const handleDeleteQuiz = async (id) => {
+    if (!window.confirm("Delete this quiz?")) return;
+    try {
+      const res = await fetch(`http://localhost:3000/api/quizzes/deleteQuiz/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (res.ok) setQuizzes((prev) => prev.filter((q) => q.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting quiz");
+    }
+  };
+
+  const handleSaveQuiz = async () => {
+    if (!title || !description) return alert("Question and correct answer required");
+
+    const payload = {
+      question: title,
+      options, // You can make a proper input later
+      correct_answer: description,
+      module_id: moduleIdFromUrl || null,
+    };
+
+    try {
+      let response;
+      if (editQuizData) {
+        response = await fetch(`http://localhost:3000/api/quizzes/editQuiz/${editQuizData.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        response = await fetch("http://localhost:3000/api/quizzes/createQuiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const data = await response.json();
+      if (response.ok) {
+        setShowCreateForm(false);
+        setTitle("");
+        setDescription("");
+        setEditQuizData(null);
+
+        if (editQuizData) setQuizzes((prev) => prev.map((q) => (q.id === data.quiz.id ? data.quiz : q)));
+        else setQuizzes((prev) => [...prev, data.quiz]);
+      } else alert(data.message || "Save failed");
+    } catch (err) {
+      console.error(err);
+      alert("Error saving quiz");
+    }
+  };
+
+
 
   // ------------------- MODULES -------------------
   const handleEditModule = async (id) => {
@@ -329,7 +447,7 @@ const AdminDashboard = () => {
               {modules.map((m) => (
                 <li key={m.id}>
                   <Link to={`/admin/modules/${m.id}`}>{m.title}</Link>
-                   <button className="edit-btn" onClick={() => handleEditModule(m.id)}>Edit</button>{" "}
+                  <button className="edit-btn" onClick={() => handleEditModule(m.id)}>Edit</button>{" "}
                   <button className="delete-btn" onClick={() => handleDeleteModule(m.id)}>Delete</button>
                 </li>
               ))}
@@ -341,47 +459,62 @@ const AdminDashboard = () => {
         {activeTab === "quizzes" && (
           <div className="admin-section">
             <h2>Quiz Management</h2>
+            <button
+              className="createNewModBtn"
+              onClick={() => {
+                setShowCreateForm(true);
+                setEditQuizData(null);
+                setTitle("");
+                setDescription("");
+              }}
+            >
+              Create New Quiz +
+            </button>
+
             <ul className="module-list">
-              {modules.map((m) => (
-                <li key={m.id}>
-                  {m.title} <button className="edit-btn">Edit</button>{" "}
-                  <button className="delete-btn">Delete</button>
+              {quizzes.map((q) => (
+                <li key={q.id}>
+                  <Link to={`/admin/quizzes/view/${q.id}`}>{q.question}</Link>
+                  <button className="edit-btn" onClick={() => handleEditQuiz(q.id)}>Edit</button>{" "}
+                  <button className="delete-btn" onClick={() => handleDeleteQuiz(q.id)}>Delete</button>
                 </li>
+
               ))}
             </ul>
           </div>
         )}
 
+
         {/* Articles */}
-{activeTab === "articles" && (
-  <div className="admin-section">
-    <h2>Article Management</h2>
+        {activeTab === "articles" && (
+          <div className="admin-section">
+            <h2>Article Management</h2>
 
-    {/* CREATE ARTICLE BUTTON */}
-    <button
-      className="createNewModBtn"
-      onClick={() => {
-        setShowCreateForm(true);
-        setEditArticleData(null); // ensure it's in "create" mode
-        setTitle("");
-        setDescription("");
-        editor.commands.setContent("<p></p>");
-      }}
-    >
-      Create New Article +
-    </button>
+            {/* CREATE ARTICLE BUTTON */}
+            <button
+              className="createNewModBtn"
+              onClick={() => {
+                setShowCreateForm(true);
+                setEditArticleData(null); // ensure it's in "create" mode
+                setTitle("");
+                setDescription("");
+                editor.commands.setContent("<p></p>");
+              }}
+            >
+              Create New Article +
+            </button>
 
-    <ul className="module-list">
-      {articles.map((a) => (
-        <li key={a.id}>
-          <Link to={`/admin/articles/${a.id}`}>{a.title}</Link>{" "}
-          <button className="edit-btn" onClick={() => handleEditArticle(a.id)}>Edit</button>{" "}
-          <button className="delete-btn" onClick={() => handleDeleteArticle(a.id)}>Delete</button>
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+            <ul className="module-list">
+              {articles.map((a) => (
+                <li key={a.id}>
+                  <Link to={`/admin/articles/${a.id}`}>{a.title}</Link>{" "}
+                  <button className="edit-btn" onClick={() => handleEditArticle(a.id)}>Edit</button>{" "}
+                  <button className="delete-btn" onClick={() => handleDeleteArticle(a.id)}>Delete</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
 
         {/* Analytics */}
@@ -434,37 +567,110 @@ const AdminDashboard = () => {
         )}
       </section>
 
-       {/* Create/Edit Module/Article Modal */}
+      {/* Create/Edit Module/Article Modal */}
       {showCreateForm && (
         <div className="createModuleOverlay">
           <div className="createModuleBg">
-            <button className="close-btn" onClick={() => setShowCreateForm(false)}>
-              ✖
-            </button>
+            <button className="close-btn" onClick={() => setShowCreateForm(false)}>✖</button>
 
-            <h2>{activeTab === "modules" ? (editModuleData ? "Edit Module" : "Create Module") : editArticleData ? "Edit Article" : "Create Article"}</h2>
+            {/* MODULES FORM */}
+            {activeTab === "modules" && (
+              <>
+                <h2>{editModuleData ? "Edit Module" : "Create Module"}</h2>
+                <label>Title</label>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
 
-            <label>Title</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <label>Description</label>
+                <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
 
-            <label>{activeTab === "modules" ? "Description" : "Tags (comma-separated)"}</label>
-            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <div className="editor-toolbar">
+                  <button onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
+                  <button onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
+                  <button onClick={() => editor.chain().focus().toggleStrike().run()}>S</button>
+                  <button onClick={addImage}>🖼️</button>
+                </div>
 
-            <div className="editor-toolbar">
-              <button onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
-              <button onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
-              <button onClick={() => editor.chain().focus().toggleStrike().run()}>S</button>
-              <button onClick={addImage}>🖼️</button>
-            </div>
+                <EditorContent editor={editor} className="editor" />
 
-            <EditorContent editor={editor} className="editor" />
+                <button className="saveModuleBtn" onClick={handleSave}>Save</button>
+              </>
+            )}
 
-            <button className="saveModuleBtn" onClick={handleSave}>
-              Save
-            </button>
+            {/* ARTICLES FORM */}
+            {activeTab === "articles" && (
+              <>
+                <h2>{editArticleData ? "Edit Article" : "Create Article"}</h2>
+                <label>Title</label>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+
+                <label>Tags (comma-separated)</label>
+                <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+
+                <div className="editor-toolbar">
+                  <button onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
+                  <button onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
+                  <button onClick={() => editor.chain().focus().toggleStrike().run()}>S</button>
+                  <button onClick={addImage}>🖼️</button>
+                </div>
+
+                <EditorContent editor={editor} className="editor" />
+
+                <button className="saveModuleBtn" onClick={handleSave}>Save</button>
+              </>
+            )}
+
+            {/* QUIZZES FORM */}
+            {activeTab === "quizzes" && (
+              <>
+                <h2>{editQuizData ? "Edit Quiz" : "Create Quiz"}</h2>
+
+                <label>Question</label>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+
+                <label>Correct Answer</label>
+                <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+
+                <label>Options</label>
+                {options.map((opt, idx) => (
+                  <div key={idx} style={{ display: "flex", marginBottom: "5px" }}>
+                    <input
+                      type="text"
+                      value={opt}
+                      placeholder={`Option ${idx + 1}`}
+                      onChange={(e) => {
+                        const newOptions = [...options];
+                        newOptions[idx] = e.target.value;
+                        setOptions(newOptions);
+                      }}
+                      style={{ flex: 1, marginRight: "5px" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newOptions = options.filter((_, i) => i !== idx);
+                        setOptions(newOptions);
+                      }}
+                    >
+                      ❌
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setOptions([...options, ""])}
+                  style={{ marginTop: "5px" }}
+                >
+                  ➕ Add Option
+                </button>
+
+
+                <button className="saveModuleBtn" onClick={handleSaveQuiz}>Save</button>
+              </>
+            )}
           </div>
         </div>
       )}
+
     </div>
   );
 };

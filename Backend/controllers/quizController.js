@@ -12,6 +12,20 @@ const getAllQuizzes = async (req, res) => {
     }
 }
 
+const getQuizzesByModule = async (req, res) => {
+  try {
+    const { moduleId } = req.params;
+    const quizzes = await pool.query('SELECT * FROM quizzes WHERE module_id = $1', [moduleId]);
+    if (quizzes.rows.length === 0) {
+      return res.status(404).json({ message: 'No quizzes found for this module' });
+    }
+    res.status(200).json({ quizzes: quizzes.rows });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 const getQuizById = async (req, res) => {
     try {
         const quiz = await pool.query('SELECT * FROM quizzes WHERE id = $1', [req.params.id]);
@@ -132,5 +146,6 @@ module.exports = {
     createQuiz,
     editQuiz,
     deleteQuiz,
-    submitQuiz
+    submitQuiz,
+    getQuizzesByModule
 }; 
