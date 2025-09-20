@@ -12,34 +12,46 @@ dotenv.config();
 // ---------------- INIT APP ----------------
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+
+// ---------------- MULTIPLE FRONTEND ORIGINS ----------------
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((url) => url.trim());
 
 // ---------------- MIDDLEWARES ----------------
-app.use(express.json({ limit: "10mb" })); // for large JSON
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
-
-// ---------------- STATIC FILES ----------------
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ---------------- CORS ----------------
 app.use(
   cors({
-    origin: CLIENT_URL,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
-// Handle preflight requests manually
+// ---------------- SOCKET.IO ----------------
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+// Middleware to attach io to requests (so controllers can emit events)
 app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Origin", CLIENT_URL);
-    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    return res.sendStatus(200);
-  }
+  req.io = io;
   next();
 });
 
@@ -61,29 +73,17 @@ app.use("/api/notification", notificationRoutes);
 // ---------------- TEST ROUTE ----------------
 app.get("/", (req, res) => res.send("✅ API is running..."));
 
-// ---------------- SOCKET.IO ----------------
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: CLIENT_URL,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
-// Middleware to attach io to requests
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
-
-// Socket connection
+// ---------------- SOCKET CONNECTION ----------------
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("join", (userId) => {
-    socket.join(userId);
-    console.log(`User ${userId} joined their room`);
+    if (userId) {
+      socket.join(userId.toString());
+      console.log(`User ${userId} joined their room`);
+    } else {
+      console.warn("Socket join called without a valid userId");
+    }
   });
 
   socket.on("disconnect", () => {
@@ -91,5 +91,8 @@ io.on("connection", (socket) => {
   });
 });
 
+
 // ---------------- START SERVER ----------------
-server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+server.listen(PORT, () =>
+  console.log(`✅ Server running on port ${PORT}`)
+);

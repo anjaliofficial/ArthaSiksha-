@@ -1,4 +1,6 @@
 const pool = require('../db');
+const { sendNotificationToAllUsers } = require('./notificationController');
+
 
 // Get all quizzes with questions
 const getAllQuizzes = async (req, res) => {
@@ -86,6 +88,13 @@ const createQuiz = async (req, res) => {
         [quiz.id, q.question_text, JSON.stringify(q.options), JSON.stringify(q.correct_answer)]
       )
     );
+
+  await sendNotificationToAllUsers(
+    `New quiz available: "${title}"`,
+    "quiz",
+    req.io
+);
+
 
     const insertedQuestions = await Promise.all(questionPromises);
 

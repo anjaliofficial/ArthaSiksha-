@@ -1,67 +1,78 @@
-// controllers/notificationController.js
-const pool = require("../db"); // PostgreSQL connection
+const pool = require('../db');
 
-// ✅ Create & send notification
-exports.createNotification = async (req, res) => {
+// Send notification to all users
+const sendNotificationToAllUsers = async (message, type, io) => {
   try {
-    const { userId, message, type } = req.body;
+    const users = await pool.query('SELECT id FROM users');
 
-    const result = await pool.query(
-      `INSERT INTO notifications (user_id, message, type) 
-       VALUES ($1, $2, $3) 
-       RETURNING *`,
-      [userId, message, type]
+    const insertPromises = users.rows.map(user =>
+      pool.query(
+        'INSERT INTO notifications (user_id, message, type) VALUES ($1, $2, $3) RETURNING *',
+        [user.id, message, type]
+      )
     );
 
-    const notification = result.rows[0];
+    const notifications = await Promise.all(insertPromises);
 
-    // Send realtime socket event
-    if (req.io) {
-      req.io.to(userId).emit("notification", notification);
-    }
+    // Emit to each user via socket.io
+    notifications.forEach((notif) => {
+      io.to(notif[0].user_id.toString()).emit('new_notification', notif[0]);
+    });
 
-    res.status(201).json({ success: true, notification });
-  } catch (error) {
-    console.error("Error creating notification:", error.message);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('Error sending notifications:', err);
   }
 };
 
-// ✅ Get all notifications for a user
-exports.getUserNotifications = async (req, res) => {
+// Get notifications for a user + unread count
+const getUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await pool.query(
-      `SELECT * FROM notifications 
-       WHERE user_id = $1 
-       ORDER BY created_at DESC`,
+    const notificationsRes = await pool.query(
+      'SELECT * FROM notifications WHERE user_id=$1 ORDER BY created_at DESC',
       [userId]
     );
 
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching notifications:", error.message);
-    res.status(500).json({ error: error.message });
+    const unreadRes = await pool.query(
+      'SELECT COUNT(*) FROM notifications WHERE user_id=$1 AND is_read=false',
+      [userId]
+    );
+
+    res.status(200).json({
+      notifications: notificationsRes.rows,
+      unreadCount: parseInt(unreadRes.rows[0].count, 10)
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-// ✅ Mark notification as read
-exports.markAsRead = async (req, res) => {
+// Mark a notification as read
+const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await pool.query(
-      `UPDATE notifications 
-       SET is_read = TRUE 
-       WHERE id = $1 
-       RETURNING *`,
+    const updated = await pool.query(
+      'UPDATE notifications SET is_read=true, updated_at=NOW() WHERE id=$1 RETURNING *',
       [id]
     );
 
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error("Error marking as read:", error.message);
-    res.status(500).json({ error: error.message });
+    if (!updated.rows.length) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    res.status(200).json({ message: 'Notification marked as read', notification: updated.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
+};
+
+module.exports = {
+  sendNotificationToAllUsers,
+  getUserNotifications,
+  markAsRead
 };

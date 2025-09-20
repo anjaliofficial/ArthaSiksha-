@@ -3,15 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoNotificationsCircleSharp } from "react-icons/io5";
 import logo from "../assets/logoWhite.png";
 import axios from "axios";
-
-// Make sure you have the correct path to your CSS file
 import "./navbarAfterLogin.css";
 
-const NavbarAfterLogin = () => {
+const NavbarAfterLogin = ({ unreadCount }) => {
   const [user, setUser] = useState({ username: "Guest", profile_image: null });
   const navigate = useNavigate();
 
-  // Fetch profile info on mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -24,20 +21,15 @@ const NavbarAfterLogin = () => {
         });
       } catch (err) {
         console.error("Error fetching user:", err);
-        if (err.response && err.response.status === 401) {
-          navigate("/login");
-        } else {
-          setUser({ username: "Guest", profile_image: null });
-        }
+        if (err.response && err.response.status === 401) navigate("/login");
       }
     };
     fetchUser();
   }, [navigate]);
 
-  const profileImageSrc =
-    user.profile_image && user.profile_image !== ""
-      ? `http://localhost:3000/uploads/${user.profile_image}`
-      : null;
+  const profileImageSrc = user.profile_image
+    ? `http://localhost:3000/uploads/${user.profile_image}`
+    : null;
 
   return (
     <nav className="navbar">
@@ -66,6 +58,9 @@ const NavbarAfterLogin = () => {
         </ul>
         <Link to="/notifications" className="notification-bell">
           <IoNotificationsCircleSharp />
+          {unreadCount > 0 && (
+            <span className="notif-count">{unreadCount}</span>
+          )}
         </Link>
         <Link to="/profile">
           {profileImageSrc ? (

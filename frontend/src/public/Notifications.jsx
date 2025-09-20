@@ -1,68 +1,96 @@
-import React, { useState, useEffect } from "react";
-import { FaEnvelopeOpenText } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaEnvelopeOpenText, FaArrowLeft } from "react-icons/fa";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../components/navbarAfterLogin";
+import NavbarAfterLogin from "../components/NavbarAfterLogin";
 import Footer from "../components/footer";
 import "./Notifications.css";
 
 const socket = io("http://localhost:3000");
 
-const Notification = () => {
+const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
-  const userId = "12345"; // replace with logged-in user id
+  const [userId, setUserId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    socket.emit("join", userId);
+    const fetchUserAndNotifications = async () => {
+      try {
+        const resProfile = await axios.get(
+          "http://localhost:3000/api/profile",
+          { withCredentials: true }
+        );
+        const id = resProfile.data.id;
+        setUserId(id);
 
-    const fetchData = async () => {
-      const res = await axios.get(
-        `http://localhost:3000/api/notifications/${userId}`
-      );
-      setNotifications(res.data);
+        // fetch notifications
+        const resNotif = await axios.get(
+          `http://localhost:3000/api/notification/${id}`
+        );
+        setNotifications(resNotif.data.notifications || []);
+
+        // join socket room safely
+        if (id) socket.emit("join", id);
+      } catch (err) {
+        console.error(err);
+      }
     };
-    fetchData();
+    fetchUserAndNotifications();
 
-    socket.on("notification", (newNote) => {
+    // listen for new notifications
+    socket.on("new_notification", (newNote) => {
       setNotifications((prev) => [newNote, ...prev]);
     });
 
-    return () => socket.off("notification");
-  }, [userId]);
+    return () => socket.off("new_notification");
+  }, []);
+
+  const markAllRead = async () => {
+    try {
+      await Promise.all(
+        notifications.map((n) =>
+          axios.put(`http://localhost:3000/api/notification/${n.id}/read`)
+        )
+      );
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
-  const markAllRead = async () => {
-    const updated = await Promise.all(
-      notifications.map((n) =>
-        axios.put(`http://localhost:3000/api/notifications/${n.id}/read`)
-      )
-    );
-    setNotifications(updated.map((res) => res.data));
-  };
-
   return (
     <div className="notification-page">
-      <Header unreadCount={unreadCount} />
+      <NavbarAfterLogin unreadCount={unreadCount} />
+
+      {/* Back Button */}
+      <div className="back-button" onClick={() => navigate("/homepage")}>
+        <FaArrowLeft size={20} /> Back to Homepage
+      </div>
 
       <section className="hero">
         <div className="hero-card">
           <h1>Notifications</h1>
           <p>Stay updated with your latest alerts and messages</p>
-          <button className="mark-read-btn" onClick={markAllRead}>
-            Mark all as read
-          </button>
+          {unreadCount > 0 && (
+            <button className="mark-read-btn" onClick={markAllRead}>
+              Mark all as read
+            </button>
+          )}
         </div>
       </section>
 
       <section className="notifications">
+        {notifications.length === 0 && <p>No notifications yet</p>}
         {notifications.map((note) => (
           <div
             key={note.id}
             className={`notification-card ${note.is_read ? "read" : "unread"}`}
           >
             <div className="icon-section">
-              <FaEnvelopeOpenText size={20} className="note-icon" />
+              <FaEnvelopeOpenText size={20} />
             </div>
             <div className="text-section">
               <p>{note.message}</p>
@@ -77,4 +105,4 @@ const Notification = () => {
   );
 };
 
-export default Notification;
+export default Notifications;

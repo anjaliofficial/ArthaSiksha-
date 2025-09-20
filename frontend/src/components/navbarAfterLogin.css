@@ -46,14 +46,31 @@
 }
 
 .notification-bell {
-  font-size: 2rem;
-  color: #555;
-  transition: color 0.3s ease;
+  position: relative;
+  font-size: 30px;
+  color: #4a4b49;
+  margin-left: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
-.notification-bell:hover {
-  color: #b5f042;
+.notification-count {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 
 .profile-image {
   height: 40px;

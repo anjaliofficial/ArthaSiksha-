@@ -1,4 +1,5 @@
 const pool = require("../db");
+const { sendNotificationToAllUsers } = require("./notificationController")
 
 const getAllModules = async (req, res) => {
     try {
@@ -59,7 +60,17 @@ const createModule = async (req, res) => {
         const newModule = await pool.query(
             'INSERT into modules (title, description, content) VALUES ($1, $2, $3) RETURNING *',
             [title, description, contentJSON]
-        )
+        );
+
+        //send notgification 
+// After creating the module
+    await sendNotificationToAllUsers(
+        `New module added: "${title}"`,
+        "module",
+        req.io
+);
+
+
         res.status(201).json({ module: newModule.rows[0] });
     }
     catch (error) {

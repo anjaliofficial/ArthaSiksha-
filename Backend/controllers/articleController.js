@@ -1,4 +1,5 @@
 const pool = require('../db');
+const { sendNotificationToAllUsers } = require('./notificationController');
 
 const getAllArticles = async (req, res) => {
     try {
@@ -36,6 +37,12 @@ const createArticle = async (req, res) => {
             'INSERT INTO articles (title, body, tags) VALUES ($1, $2, $3) RETURNING *',
             [title, body, tagsArray]
         );
+
+    await sendNotificationToAllUsers(
+    `New article published: "${title}"`,
+    "article",
+    req.io
+);
         res.status(201).json({ article: newArticle.rows[0] });
     } catch (error) {
         console.error(error);

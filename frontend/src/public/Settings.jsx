@@ -19,6 +19,18 @@ const SettingsPage = () => {
   });
 
   const [theme, setTheme] = useState("Light");
+  const [loading, setLoading] = useState(true);
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "Light";
+    setTheme(savedTheme);
+  }, []);
+
+  // Apply theme to body and save in localStorage
+  useEffect(() => {
+    document.body.className = theme.toLowerCase();
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -32,7 +44,6 @@ const SettingsPage = () => {
         const data = await res.json();
 
         if (res.ok) {
-          // Only pick username and email
           setUser({
             username: data.username || "",
             email: data.email || "",
@@ -49,14 +60,10 @@ const SettingsPage = () => {
     fetchUserProfile();
   }, [navigate]);
 
-  // Save profile (only username and email)
+  // Save profile
   const handleSaveProfile = async () => {
     try {
-      const payload = {
-        username: user.username,
-        email: user.email,
-      };
-
+      const payload = { username: user.username, email: user.email };
       const res = await fetch("http://localhost:3000/api/profile", {
         method: "PUT",
         headers: {
@@ -65,13 +72,9 @@ const SettingsPage = () => {
         },
         body: JSON.stringify(payload),
       });
-
       const data = await res.json();
-      if (res.ok) {
-        alert("✅ Profile updated successfully!");
-      } else {
-        alert(data.message || "❌ Failed to update profile");
-      }
+      if (res.ok) alert("✅ Profile updated successfully!");
+      else alert(data.message || "❌ Failed to update profile");
     } catch (err) {
       console.error("Error updating profile:", err);
       alert("❌ Error updating profile");
@@ -118,7 +121,10 @@ const SettingsPage = () => {
               type="checkbox"
               checked={notifications.email}
               onChange={() =>
-                setNotifications({ ...notifications, email: !notifications.email })
+                setNotifications({
+                  ...notifications,
+                  email: !notifications.email,
+                })
               }
             />
             Email Notifications
@@ -138,7 +144,10 @@ const SettingsPage = () => {
               type="checkbox"
               checked={notifications.push}
               onChange={() =>
-                setNotifications({ ...notifications, push: !notifications.push })
+                setNotifications({
+                  ...notifications,
+                  push: !notifications.push,
+                })
               }
             />
             Push Notifications
@@ -168,7 +177,9 @@ const SettingsPage = () => {
               Dark
             </div>
             <div
-              className={`toggle-indicator ${theme === "Dark" ? "right" : "left"}`}
+              className={`toggle-indicator ${
+                theme === "Dark" ? "right" : "left"
+              }`}
             />
           </div>
         </div>

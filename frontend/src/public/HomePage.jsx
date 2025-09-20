@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { IoNotificationsCircleSharp } from "react-icons/io5";
 import { FaPlay, FaChevronRight, FaArrowRight } from "react-icons/fa";
-import logo from "../assets/logoWhite.png";
-import Navbar from "../components/navbarAfterLogin";
+import axios from "axios";
+import io from "socket.io-client";
+
+import NavbarAfterLogin from "../components/navbarAfterLogin.jsx";
 import Footer from "../components/footer";
 import "./HomePage.css";
 
+// Connect to Socket.io server
+const socket = io("http://localhost:3000");
+
 const HomePage = () => {
-  const [user, setUser] = useState({ username: "Guest", profile_image: null });
+  const [user, setUser] = useState({
+    id: null,
+    username: "Guest",
+    profile_image: null,
+  });
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch profile info on mount
+  // Fetch user profile
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/profile", {
-          headers: {Authorization: `Bearer ${localStorage.getItem("token")}`}
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
+
         setUser({
+          id: res.data.id, // store id for notifications
           username: res.data.username || "User",
           profile_image: res.data.profile_image || null,
         });
@@ -27,25 +37,58 @@ const HomePage = () => {
         console.error("Error fetching user:", err);
         if (err.response && err.response.status === 401) {
           navigate("/login");
-        } else {
-          setUser({ username: "Guest", profile_image: null });
         }
       }
     };
     fetchUser();
   }, [navigate]);
 
-  const profileImageSrc =
-    user.profile_image && user.profile_image !== ""
-      ? `http://localhost:3000/uploads/${user.profile_image}`
-      : null;
+  // Fetch notifications and join socket room
+  useEffect(() => {
+    if (!user.id) return; // wait until user is fetched
+
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/notification/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        // Sort by newest first and take top 3
+        const latestThree = (res.data.notifications || [])
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 3);
+        setNotifications(latestThree);
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+
+    fetchNotifications();
+
+    // Join socket room for live updates
+    socket.emit("join", user.id);
+
+    socket.on("new_notification", (newNote) => {
+      setNotifications((prev) => {
+        const updated = [newNote, ...prev];
+        return updated.slice(0, 3); // keep only latest 3
+      });
+    });
+
+    return () => socket.off("new_notification");
+  }, [user.id]);
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <div className="whole-home-page">
-      {/* Navbar */}
-      <Navbar/>
+      <NavbarAfterLogin unreadCount={unreadCount} />
 
-      {/* Main content wrapper */}
       <div className="main-content">
         <div className="line"></div>
 
@@ -99,23 +142,24 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {/* Notifications */}
+          {/* Notifications Preview */}
           <div className="notification-contents">
             <h2>Notifications</h2>
-            <Link to="/notifications" className="not-content">
-              <p>New Challenge Unlocked</p>
-            </Link>
-            <Link to="/notifications" className="not-content">
-              <p>Friend request pending</p>
-            </Link>
-            <Link to="/notifications" className="not-content">
-              <p>You earned a badge!</p>
-            </Link>
+            {notifications.length > 0 ? (
+              notifications.map((note) => (
+                <Link to="/notifications" key={note.id} className="not-content">
+                  <p>{note.message}</p>
+                </Link>
+              ))
+            ) : (
+              <p>No notifications</p>
+            )}
           </div>
         </div>
 
         {/* Bottom Section */}
         <div className="btm-two">
+          {/* Leaderboard */}
           <div className="leaderboard-preview">
             <h2>Leaderboard</h2>
             <div className="leads">
@@ -145,6 +189,7 @@ const HomePage = () => {
             </div>
           </div>
 
+          {/* Events & Badges */}
           <div className="events-tips">
             <div className="events">
               <h2>Upcoming Events</h2>
