@@ -6,7 +6,7 @@ const path = require("path");
 
 // ---------------- GET PROFILE ----------------
 const getProfile = async (req, res) => {
-  if (!req.userId) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ message: "Unauthorized: Please log in." });
   }
 
@@ -14,7 +14,7 @@ const getProfile = async (req, res) => {
     const userRes = await pool.query(
       // Change 'profile_pic' to 'profile_image' in the SELECT statement
       "SELECT id, username, email, age, occupation, financial_goal, address, contact, profile_image FROM users WHERE id=$1",
-      [req.userId]
+      [req.user.id]
     );
 
     if (userRes.rows.length === 0) {
@@ -36,27 +36,36 @@ const updateProfile = async (req, res) => {
     const {
       username,
       email,
-      age, // This is the field causing the error
+      age,
       occupation,
       financial_goal,
       address,
       contact,
     } = req.body;
 
-    // Convert empty string/null-like values to an actual null
-    const sanitizedAge = age === "" || age === "null" ? null : parseInt(age);
+    const sanitizedAge = age === "" || age === "null" ? null : age !== undefined ? parseInt(age) : undefined;
 
-    let profileImage = req.file ? req.file.filename : null;
+    const profileImage = req.file ? req.file.filename : undefined;
 
-    // ... (rest of your file handling logic) ...
+    // Build dynamic query
+    const fields = [];
+    const values = [];
+    let idx = 1;
+
+    if (username !== undefined) { fields.push(`username=$${idx++}`); values.push(username); }
+    if (email !== undefined) { fields.push(`email=$${idx++}`); values.push(email); }
+    if (sanitizedAge !== undefined) { fields.push(`age=$${idx++}`); values.push(sanitizedAge); }
+    if (occupation !== undefined) { fields.push(`occupation=$${idx++}`); values.push(occupation); }
+    if (financial_goal !== undefined) { fields.push(`financial_goal=$${idx++}`); values.push(financial_goal); }
+    if (address !== undefined) { fields.push(`address=$${idx++}`); values.push(address); }
+    if (contact !== undefined) { fields.push(`contact=$${idx++}`); values.push(contact); }
+    if (profileImage !== undefined) { fields.push(`profile_image=COALESCE($${idx++}, profile_image)`); values.push(profileImage); }
+
+    values.push(req.user.id);
 
     const updatedRes = await pool.query(
-      `UPDATE users
-       SET username=$1, email=$2, age=$3, occupation=$4, financial_goal=$5, address=$6, contact=$7, profile_image=COALESCE($8, profile_image)
-       WHERE id=$9
-       RETURNING id, username, email, age, occupation, financial_goal, address, contact, profile_image`,
-      // Pass the sanitizedAge here
-      [username, email, sanitizedAge, occupation, financial_goal, address, contact, profileImage, req.userId]
+      `UPDATE users SET ${fields.join(", ")} WHERE id=$${idx} RETURNING *`,
+      values
     );
 
     res.status(200).json({ message: "Profile updated", user: updatedRes.rows[0] });
@@ -65,4 +74,5 @@ const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 module.exports = { getProfile, updateProfile };

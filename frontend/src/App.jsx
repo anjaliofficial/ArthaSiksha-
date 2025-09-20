@@ -21,10 +21,15 @@ const Notifications = lazy(() => import("./public/Notifications"));
 const AdminDashboard = lazy(() => import("./public/AdminDashboard"));
 const Feedback = lazy(() => import("./public/Feedback"));
 const ModulesPage = lazy(() => import("./public/Modulespage"));
+const ModuleDetail = lazy(() => import("./public/ModuleDetail"));
 const QuizPage = lazy(() => import("./public/QuizPage"));
 const ResetPassword = lazy(() => import("./public/ResetPassword"));
 const ModulePage = lazy(() => import("./public/ModulePage"));
 const ArticlePage = lazy(() => import("./public/ArticlePage"));
+const ArticlesPageUser = lazy(() => import("./public/ArticlesPageUser"));
+const ArticleDetailUser = lazy(() => import("./public/ArticleDetailUser"));
+const QuizPageUser = lazy(() => import("./public/QuizPageUser"));
+const QuizDetailUser = lazy(() => import("./public/QuizDetailUser"))
 
 function App() {
   return (
@@ -46,10 +51,15 @@ function App() {
           <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/modules" element={<ModulesPage />} />
+          <Route path="/modules/:id" element={<ModuleDetail />} />
           <Route path="/admin/quizzes/view/:quizId" element={<QuizPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/modules/:id" element={<ModulePage />} />
           <Route path="/admin/articles/:id" element={<ArticlePage />} />
+          <Route path="/articles" element={<ArticlesPageUser />} />
+          <Route path="/articles/:id" element={<ArticleDetailUser />} />
+          <Route path="/quizzes" element={<QuizPageUser />} />
+          <Route path="/quiz/:id" element={<QuizDetailUser />} />
         </Routes>
       </Suspense>
     </Router>

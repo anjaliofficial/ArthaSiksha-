@@ -23,6 +23,11 @@
     font-size: 30px;
     color: #666;
     margin-bottom: 20px;
+    cursor: pointer;
+    background-color: white;
+    border: none;
+    display: flex;
+    justify-content: flex-start;
     transition: transform 0.3s;
 }
 .login-backBtn:hover { transform: translateX(-4px); }

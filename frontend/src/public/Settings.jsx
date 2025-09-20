@@ -1,107 +1,116 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaBell } from "react-icons/fa";
-import logoWhite from "../assets/logoWhite.png"; // Replace with your actual path
+import Navbar from "../components/navbarAfterLogin";
+import Footer from "../components/footer";
 import "./Settings.css";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("AnjaliBista");
-  const [email, setEmail] = useState("user@example.com");
-  const [language, setLanguage] = useState("English");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [user, setUser] = useState({
+    username: "",
+    email: "",
+  });
+
   const [notifications, setNotifications] = useState({
     email: true,
     sms: false,
     push: true,
   });
+
   const [theme, setTheme] = useState("Light");
 
-  const handleSaveProfile = () => alert("Profile updated!");
-  const handleChangePassword = () => alert("Password changed!");
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/profile", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          // Only pick username and email
+          setUser({
+            username: data.username || "",
+            email: data.email || "",
+          });
+        } else {
+          console.error("Failed to fetch user profile:", data.message);
+          if (res.status === 401) navigate("/login");
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  // Save profile (only username and email)
+  const handleSaveProfile = async () => {
+    try {
+      const payload = {
+        username: user.username,
+        email: user.email,
+      };
+
+      const res = await fetch("http://localhost:3000/api/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Profile updated successfully!");
+      } else {
+        alert(data.message || "❌ Failed to update profile");
+      }
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert("❌ Error updating profile");
+    }
+  };
+
   const handleLogout = () => navigate("/login");
 
   return (
     <div className="settings-page">
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="logo">
-          <img src={logoWhite} alt="Artha Shiksha Logo" className="logo-img" />
-        </div>
-        <ul className="nav-links">
-          <li onClick={() => navigate("/landingpage")}>Home</li>
-          <li onClick={() => navigate("/features")}>Features</li>
-          <li onClick={() => navigate("/learn")}>Learn</li>
-          <li onClick={() => navigate("/gamification")}>Gamification</li>
-          <li onClick={() => navigate("/profile")}>
-            <FaUserCircle size={20} /> Profile
-          </li>
-          <li onClick={() => navigate("/notifications")}>
-            <FaBell size={18} />
-          </li>
-        </ul>
-      </nav>
+      <Navbar />
 
-      {/* Header */}
       <div className="settings-header">
         <h1>Settings</h1>
-        <p>
-          Manage your profile, security, notifications, and theme preferences.
-        </p>
+        <p>Manage your profile, notifications, and theme preferences.</p>
       </div>
 
-      {/* Settings Sections */}
       <div className="settings-grid">
         {/* Profile Info */}
         <div className="settings-card">
           <h3>Profile Information</h3>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
+            value={user.username}
+            onChange={(e) => setUser({ ...user, username: e.target.value })}
+            placeholder="Enter username"
           />
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            value={user.email}
+            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            placeholder="Enter email"
           />
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
-            <option>English</option>
-            <option>Nepali</option>
-          </select>
           <button className="small-btn" onClick={handleSaveProfile}>
             Save Changes
           </button>
         </div>
 
-        {/* Change Password */}
-        <div className="settings-card">
-          <h3>Change Password</h3>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Current Password"
-          />
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="New Password"
-          />
-          <button className="small-btn" onClick={handleChangePassword}>
-            Update Password
-          </button>
-        </div>
-
-        {/* Notification Preferences */}
+        {/* Notifications */}
         <div className="settings-card">
           <h3>Notifications</h3>
           <label>
@@ -109,10 +118,7 @@ const SettingsPage = () => {
               type="checkbox"
               checked={notifications.email}
               onChange={() =>
-                setNotifications({
-                  ...notifications,
-                  email: !notifications.email,
-                })
+                setNotifications({ ...notifications, email: !notifications.email })
               }
             />
             Email Notifications
@@ -132,10 +138,7 @@ const SettingsPage = () => {
               type="checkbox"
               checked={notifications.push}
               onChange={() =>
-                setNotifications({
-                  ...notifications,
-                  push: !notifications.push,
-                })
+                setNotifications({ ...notifications, push: !notifications.push })
               }
             />
             Push Notifications
@@ -148,7 +151,7 @@ const SettingsPage = () => {
           </button>
         </div>
 
-        {/* Theme Selection */}
+        {/* Theme */}
         <div className="settings-card">
           <h3>Theme Selection</h3>
           <div className="theme-toggle">
@@ -165,9 +168,7 @@ const SettingsPage = () => {
               Dark
             </div>
             <div
-              className={`toggle-indicator ${
-                theme === "Dark" ? "right" : "left"
-              }`}
+              className={`toggle-indicator ${theme === "Dark" ? "right" : "left"}`}
             />
           </div>
         </div>
@@ -181,40 +182,7 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer>
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>About</h4>
-            <p>
-              Artha Shiksha is your platform for interactive financial
-              education.
-            </p>
-          </div>
-          <div className="footer-section">
-            <h4>Quick Links</h4>
-            <ul>
-              <li>Home</li>
-              <li>Features</li>
-              <li>Learn</li>
-              <li>Gamification</li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Contact</h4>
-            <p>Email: support@arthashiksha.com</p>
-            <p>Phone: +977 1234 56789</p>
-          </div>
-          <div className="footer-section">
-            <h4>Newsletter</h4>
-            <input type="email" placeholder="Your email" />
-            <button className="subscribe-btn">Subscribe</button>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          &copy; 2025 Artha Shiksha. All rights reserved.
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

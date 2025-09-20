@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoNotificationsCircleSharp } from "react-icons/io5";
 import { FaPlay, FaChevronRight, FaArrowRight } from "react-icons/fa";
 import logo from "../assets/logoWhite.png";
+import Navbar from "../components/navbarAfterLogin";
 import Footer from "../components/footer";
 import "./HomePage.css";
 
@@ -16,7 +17,7 @@ const HomePage = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/profile", {
-          withCredentials: true,
+          headers: {Authorization: `Bearer ${localStorage.getItem("token")}`}
         });
         setUser({
           username: res.data.username || "User",
@@ -42,43 +43,7 @@ const HomePage = () => {
   return (
     <div className="whole-home-page">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="left">
-          <Link to="/" className="logo">
-            <img src={logo} alt="logo" />
-          </Link>
-        </div>
-        <div className="right">
-          <ul>
-            <li>
-              <Link to="/quizzes">Quizzes</Link>
-            </li>
-            <li>
-              <Link to="/lessons">Lessons</Link>
-            </li>
-            <li>
-              <Link to="/leaderboards">Leaderboards</Link>
-            </li>
-            <li>
-              <Link to="/settings">Settings</Link>
-            </li>
-          </ul>
-          <Link to="/notifications" className="notification-bell">
-            <IoNotificationsCircleSharp />
-          </Link>
-          <Link to="/profile">
-            {profileImageSrc ? (
-              <img
-                src={profileImageSrc}
-                alt="Profile"
-                className="profile-image"
-              />
-            ) : (
-              <span className="profile-image">👤</span>
-            )}
-          </Link>
-        </div>
-      </nav>
+      <Navbar/>
 
       {/* Main content wrapper */}
       <div className="main-content">

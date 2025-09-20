@@ -107,16 +107,7 @@ const LandingPage = () => {
           <li onClick={() => scrollToSection(heroRef)}>Home</li>
           <li onClick={() => scrollToSection(featuresRef)}>Features</li>
           <li onClick={() => scrollToSection(learnRef)}>Learn</li>
-          <li onClick={() => navigate("/profile")}>
-            <FaUserCircle /> Profile
-          </li>
-          <li>
-            <FaBell
-              size={18}
-              className="notification-icon"
-              onClick={() => navigate("/notifications")}
-            />
-          </li>
+        
           <li>
             <button className="join-btn" onClick={() => navigate("/login")}>
               Join Free

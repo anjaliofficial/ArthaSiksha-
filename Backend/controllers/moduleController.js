@@ -13,18 +13,41 @@ const getAllModules = async (req, res) => {
     }
 }
 
-const getModuleById = async(req, res) => {
+const getModuleById = async (req, res) => {
     try {
-        const getWithID = await pool.query('SELECT * FROM modules WHERE id = $1', [req.params.id]);
-        if (getWithID.rows.length === 0) 
-            return res.status(404).json({ message: 'Module not found' });
+        const { id } = req.params;
+        const userId = req.user.id; // 👈 current logged-in user
 
-        res.status(200).json({module: getWithID.rows[0]});
+        // Get the module itself
+        const moduleResult = await pool.query(
+            'SELECT * FROM modules WHERE id = $1',
+            [id]
+        );
+        if (moduleResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Module not found' });
+        }
+        const module = moduleResult.rows[0];
+
+        // Get progress for this user & module
+        const progressResult = await pool.query(
+            'SELECT completed, progress_percent FROM moduleprogress WHERE user_id = $1 AND module_id = $2',
+            [userId, id]
+        );
+
+        const progress = progressResult.rows[0] || { completed: false, progress_percent: 0 };
+
+        // Send both module + progress
+        res.status(200).json({
+            module,
+            completed: progress.completed,
+            progressPercent: progress.progress_percent,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
+
 
 const createModule = async (req, res) => {
     const { title, description, content } = req.body;
@@ -85,8 +108,10 @@ const deleteModule = async (req, res) => {
 const updateModuleProgress = async (req, res) => {
     try {
         const { moduleId } = req.params;
-        const { progressPercent } = req.body;
         const userId = req.user.id;
+
+        // Default to 100 if nothing is provided
+        const progressPercent = 100;
 
         const result = await pool.query(
             'INSERT INTO moduleprogress (user_id, module_id, progress_percent, completed) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, module_id) DO UPDATE SET progress_percent = $3, completed = $4',
@@ -98,7 +123,8 @@ const updateModuleProgress = async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
+
 
 const completeModule = async (req, res) => {
     try {

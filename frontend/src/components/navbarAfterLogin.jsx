@@ -42,17 +42,20 @@ const NavbarAfterLogin = () => {
   return (
     <nav className="navbar">
       <div className="left">
-        <Link to="/" className="logo">
+        <Link to="/homepage" className="logo">
           <img src={logo} alt="logo" />
         </Link>
       </div>
       <div className="right">
         <ul>
           <li>
-            <Link to="/quizzes">Quizzes</Link>
+            <Link to="/modules">Modules</Link>
           </li>
           <li>
-            <Link to="/lessons">Lessons</Link>
+            <Link to="/articles">Articles</Link>
+          </li>
+          <li>
+            <Link to="/quizzes">Quizzes</Link>
           </li>
           <li>
             <Link to="/leaderboards">Leaderboards</Link>

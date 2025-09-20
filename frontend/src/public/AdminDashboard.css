@@ -418,6 +418,157 @@
   object-fit: contain;
 }
 
+.createModuleOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.createModuleBg {
+  background: #fff;
+  padding: 20px;
+  width: 90%;
+  max-width: 900px;
+  border-radius: 12px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.question-block {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.option-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.options-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.add-btn {
+  background: #B5F042;
+  border: none;
+  padding: 5px 10px;
+  margin-top: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.remove-btn {
+  background: #ff6b6b;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 5px;
+  color: #fff;
+}
+
+/* Settings Section */
+.admin-section {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-section h2 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+.settings-card label {
+  font-weight: 500;
+  color: #555;
+}
+
+.settings-card input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.settings-card input:focus {
+  outline: none;
+  border-color: #B5F042;
+  box-shadow: 0 0 0 2px rgba(181, 240, 66, 0.2);
+}
+
+.settings-card .small-btn {
+  padding: 10px 15px;
+  background-color: #B5F042;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.settings-card .small-btn:hover {
+  background-color: #9acc38;
+}
+
+.logout-btn {
+  padding: 8px 12px;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #e04344;
+}
+
 
 
 /* Responsive */
