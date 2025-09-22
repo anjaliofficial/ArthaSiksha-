@@ -81,7 +81,11 @@ const SettingsPage = () => {
     }
   };
 
-  const handleLogout = () => navigate("/login");
+  const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/login";   // Redirect to login page
+};
 
   return (
     <div className="settings-page">

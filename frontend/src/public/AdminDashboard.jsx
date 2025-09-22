@@ -66,6 +66,10 @@ const AdminDashboard = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState(""); // modules: description, articles: tags/body
 
+
+const [currentUser, setCurrentUser] = useState(null);
+
+
   const editor = useEditor({
     extensions: [StarterKit, Image, Placeholder.configure({ placeholder: "Start typing here..." })],
     content: "<p></p>",
@@ -73,7 +77,8 @@ const AdminDashboard = () => {
   });
 
   const handleLogout = () => {
-  localStorage.removeItem("token"); // Remove the JWT
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
   window.location.href = "/login";   // Redirect to login page
 };
 
@@ -106,20 +111,38 @@ const AdminDashboard = () => {
   };
 
   // Fetch Users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch("http://localhost:3000/api/users/getAllUsers", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        const data = await res.json();
-        if (res.ok) setUsers(data.users);
-      } catch (err) {
-        console.error("Error fetching users: ", err);
-      }
-    };
-    fetchUsers();
-  }, []);
+ useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/users/getAllUsers", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+      if (res.ok) setUsers(data.users); // ⚠️ here, make sure data.users[i].role exists
+      console.log(data.users);
+    } catch (err) {
+      console.error("Error fetching users: ", err);
+    }
+  };
+  fetchUsers();
+}, []);
+
+
+useEffect(() => {
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/users/me", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+      setCurrentUser(data.user);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  fetchCurrentUser();
+}, []);
+
 
 
   // Fetch Modules
@@ -176,6 +199,36 @@ const AdminDashboard = () => {
       alert("❌ Error updating profile");
     }
   };
+
+
+const handleRoleChange = async (userId, newRole) => {
+  try {
+    const res = await fetch(`http://localhost:3000/api/users/${userId}/role`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ role: newRole }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to update role");
+    }
+
+    // Update state based on response from backend
+    setUsers(prev =>
+      prev.map(u => (u.id === userId ? { ...u, role: data.user.role } : u))
+    );
+
+    alert(`✅ Role updated to ${data.user.role}`);
+  } catch (err) {
+    console.error(err);
+    alert(`❌ ${err.message}`);
+  }
+};
 
 
 
@@ -607,18 +660,29 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.username}</td>
-                    <td>{u.email}</td>
-                    <td>
-                      <button className="edit-btn" onClick={() => setEditUserData(u)}>Edit</button>
-                      <button className="delete-btn" onClick={() => handleDeleteUser(u.id)}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+  {users.map((u) => (
+    <tr key={u.id}>
+      <td>{u.id}</td>
+      <td>{u.username}</td>
+      <td>{u.email}</td>
+      <td>
+ <select
+  value={u.role}
+  onChange={(e) => handleRoleChange(u.id, e.target.value)}
+  disabled={u.id === currentUser?.id} // prevent changing own role
+>
+  <option value="user">User</option>
+  <option value="admin">Admin</option>
+</select>
+
+  <button className="edit-btn" onClick={() => setEditUserData(u)}>Edit</button>
+  <button className="delete-btn" onClick={() => handleDeleteUser(u.id)}>Delete</button>
+</td>
+
+    </tr>
+  ))}
+</tbody>
+
             </table>
 
             {editUserData && (
