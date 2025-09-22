@@ -62,6 +62,7 @@ const moduleRoutes = require("./routes/moduleRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 const quizRoutes = require("./routes/quizRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const userRoutes = require("./routes/users");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
@@ -69,6 +70,7 @@ app.use("/api/modules", moduleRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/users", userRoutes);
 
 // ---------------- TEST ROUTE ----------------
 app.get("/", (req, res) => res.send("✅ API is running..."));

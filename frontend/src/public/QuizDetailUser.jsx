@@ -44,35 +44,53 @@ const QuizDetailUser = () => {
   };
 
   // Handle next question / submit
-  const handleNext = () => {
-    if (!quiz || !quiz.questions) return;
+  // Handle next question / submit
+const handleNext = async () => {
+  if (!quiz || !quiz.questions) return;
 
-    const userAnswer = answers[currentQuestion];
-    const question = quiz.questions[currentQuestion];
-    const correctAnswer = question.correct_answer;
+  const userAnswer = answers[currentQuestion];
+  const question = quiz.questions[currentQuestion];
+  const correctAnswer = question.correct_answer;
 
-    // If last question, check answer and navigate
-    if (currentQuestion === quiz.questions.length - 1) {
-      let isCorrect = false;
+  // If last question, submit to backend
+  if (currentQuestion === quiz.questions.length - 1) {
+    // Build submission payload
+    const submission = {
+      quiz_id: id,
+      answers: Object.entries(answers).map(([qIndex, selected]) => ({
+        question_id: quiz.questions[qIndex].id,
+        selected: [selected] // backend expects array
+      }))
+    };
 
-      if (Array.isArray(correctAnswer)) {
-        isCorrect = correctAnswer.includes(userAnswer);
+    try {
+      const res = await fetch("http://localhost:3000/api/quizzes/submitQuiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(submission)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`Quiz submitted ✅\nScore: ${data.score}\nXP Earned: ${data.xp}`);
       } else {
-        isCorrect = userAnswer === correctAnswer;
+        alert(`Error submitting quiz ❌\n${data.message || "Please try again."}`);
       }
-
-      if (isCorrect) {
-        alert("Answer correct! ✅");
-      } else {
-        alert(`Answer incorrect ❌\nCorrect answer: ${Array.isArray(correctAnswer) ? correctAnswer.join(", ") : correctAnswer}`);
-      }
-
-      navigate("/quizzes"); // back to quiz list
-    } else {
-      // Move to next question
-      setCurrentQuestion(currentQuestion + 1);
+    } catch (err) {
+      console.error("Error submitting quiz:", err);
+      alert("Something went wrong submitting quiz ❌");
     }
-  };
+
+    navigate("/quizzes"); // back to quiz list
+  } else {
+    // Move to next question
+    setCurrentQuestion(currentQuestion + 1);
+  }
+};
 
   if (loading) return <p className="loading">Loading quiz...</p>;
   if (!quiz || !quiz.questions || quiz.questions.length === 0)

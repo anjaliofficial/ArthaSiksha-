@@ -33,6 +33,9 @@ const AdminDashboard = () => {
   const tabFromUrl = queryParams.get("tab"); // e.g., ?tab=quizzes
   const [activeTab, setActiveTab] = useState(tabFromUrl || "users");
 
+  const [users, setUsers] = useState([]);
+  const [editUserData, setEditUserData] = useState(null);
+
   // Add at top with other useState
   const [adminProfile, setAdminProfile] = useState({ username: "", email: "" });
 
@@ -101,6 +104,22 @@ const AdminDashboard = () => {
     url.searchParams.set("tab", "quizzes");
     window.history.replaceState({}, "", url);
   };
+
+  // Fetch Users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/users/getAllUsers", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await res.json();
+        if (res.ok) setUsers(data.users);
+      } catch (err) {
+        console.error("Error fetching users: ", err);
+      }
+    };
+    fetchUsers();
+  }, []);
 
 
   // Fetch Modules
@@ -313,6 +332,65 @@ const AdminDashboard = () => {
     }
   };
 
+  // ------------------- USERS -------------------
+
+  const handleSaveUser = async (username, email, password) => {
+  try {
+    const isEdit = editUserData && editUserData.id;
+    const url = isEdit
+      ? `http://localhost:3000/api/users/editUser/${editUserData.id}`
+      : "http://localhost:3000/api/users/createUser";
+
+    const method = isEdit ? "PUT" : "POST";
+    const payload = isEdit ? { username, email } : { username, email, password };
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "❌ Failed to save user");
+      return;
+    }
+
+    alert("✅ User saved successfully!");
+    setEditUserData(null);
+
+    setUsers((prev) => {
+      if (isEdit) {
+        return prev.map((u) => (u.id === editUserData.id ? { ...u, username, email } : u));
+      } else {
+        return [...prev, data.user];
+      }
+    });
+  } catch (err) {
+    console.error("Error saving user: ", err);
+    alert("❌ An unexpected error occurred.");
+  }
+};
+
+
+
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm("Delete this user?")) return;
+    try{
+      const res = await fetch(`http://localhost:3000/api/users/deleteUser/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (res.ok) setUsers((prev) => prev.filter((u) => u.id !== id));
+    } catch(err) {
+      console.error("Error deleting user: ", err);
+    }
+  };
+   
   // ------------------- MODULES -------------------
   const handleEditModule = async (id) => {
     try {
@@ -447,11 +525,8 @@ const AdminDashboard = () => {
     }
   };
 
-  // ------------------- DUMMY USERS AND ANALYTICS -------------------
-  const [users] = useState([
-    { id: 1, name: "John Doe", email: "johndoe@email.com" },
-    { id: 2, name: "Jane Smith", email: "janesmith@email.com" },
-  ]);
+  // ------------------- DUMMY ANALYTICS -------------------
+
   const analytics = {
     totalUsers: 120,
     activeUsers: 95,
@@ -512,11 +587,21 @@ const AdminDashboard = () => {
         {activeTab === "users" && (
           <div className="admin-section">
             <h2>User Management</h2>
+            <button
+  className="createNewModBtn"
+  onClick={() => {
+    setEditUserData({ username: "", email: "", password: "", id: null }); // explicitly no id
+  }}
+>
+  Create New User +
+</button>
+
+
             <table className="admin-table">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Name</th>
+                  <th>Username</th>
                   <th>Email</th>
                   <th>Actions</th>
                 </tr>
@@ -525,16 +610,38 @@ const AdminDashboard = () => {
                 {users.map((u) => (
                   <tr key={u.id}>
                     <td>{u.id}</td>
-                    <td>{u.name}</td>
+                    <td>{u.username}</td>
                     <td>{u.email}</td>
                     <td>
-                      <button className="edit-btn">Edit</button>
-                      <button className="delete-btn">Delete</button>
+                      <button className="edit-btn" onClick={() => setEditUserData(u)}>Edit</button>
+                      <button className="delete-btn" onClick={() => handleDeleteUser(u.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            {editUserData && (
+              <div className="createModuleOverlay">
+                <div className="createModuleBg">
+                  <button className="close-btn" onClick={() => setEditUserData(null)}>❌</button>
+                  <h2>{editUserData.id ? "Edit User" : "Create User"}</h2>
+                  <label>Username</label>
+                  <input type="text" value={editUserData.username} onChange={(e) => setEditUserData({ ...editUserData, username: e.target.value })} />
+                  <label>Email</label>
+                  <input type="email" value={editUserData.email} onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })} />
+                  {!editUserData.id && (
+                    <>
+                    <label>Password</label>
+                    <input type="password" onChange={(e) => setEditUserData({ ...editUserData, password: e.target.value })} />
+                    </>
+                  )}
+                  <button className="saveModuleBtn" onClick={() => handleSaveUser(editUserData.username, editUserData.email, editUserData.password)}>
+                    Save User
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

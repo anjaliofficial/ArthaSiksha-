@@ -219,12 +219,32 @@ const submitQuiz = async (req, res) => {
 
     let score = 0;
     answers.forEach(ans => {
-      const question = questions.find(q => q.id === ans.question_id);
-      const correct = JSON.parse(question.correct_answer);
-      if (Array.isArray(ans.selected) && ans.selected.sort().toString() === correct.sort().toString()) {
-        score++;
-      }
-    });
+  const question = questions.find(q => q.id === ans.question_id);
+  let correct;
+
+  try {
+    correct = JSON.parse(question.correct_answer);
+  } catch (err) {
+    // If it's not valid JSON, treat as plain string
+    correct = question.correct_answer;
+  }
+
+  // Normalize correct to always be an array
+  if (!Array.isArray(correct)) {
+    correct = [correct];
+  }
+
+  // Normalize selected to array
+  let selected = ans.selected;
+  if (!Array.isArray(selected)) {
+    selected = [selected];
+  }
+
+  if (selected.sort().toString() === correct.sort().toString()) {
+    score++;
+  }
+});
+
 
     const xp = score * 10;
 
