@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaPlay, FaChevronRight, FaArrowRight } from "react-icons/fa";
+// Updated imports: Fa for play/arrows, Ai for investment icons
+import {
+  FaPlay,
+  FaChevronRight,
+  FaArrowRight,
+  FaChartLine,
+  FaWallet,
+  FaShieldAlt,
+} from "react-icons/fa";
+import { AiFillCalculator } from "react-icons/ai"; // Importing a calculator icon
 import axios from "axios";
 import io from "socket.io-client";
 
@@ -29,7 +38,7 @@ const HomePage = () => {
         });
 
         setUser({
-          id: res.data.id, // store id for notifications
+          id: res.data.id,
           username: res.data.username || "User",
           profile_image: res.data.profile_image || null,
         });
@@ -45,7 +54,7 @@ const HomePage = () => {
 
   // Fetch notifications and join socket room
   useEffect(() => {
-    if (!user.id) return; // wait until user is fetched
+    if (!user.id) return;
 
     const fetchNotifications = async () => {
       try {
@@ -58,7 +67,6 @@ const HomePage = () => {
           }
         );
 
-        // Sort by newest first and take top 3
         const latestThree = (res.data.notifications || [])
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           .slice(0, 3);
@@ -69,14 +77,12 @@ const HomePage = () => {
     };
 
     fetchNotifications();
-
-    // Join socket room for live updates
     socket.emit("join", user.id);
 
     socket.on("new_notification", (newNote) => {
       setNotifications((prev) => {
         const updated = [newNote, ...prev];
-        return updated.slice(0, 3); // keep only latest 3
+        return updated.slice(0, 3);
       });
     });
 
@@ -125,21 +131,26 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Recommended Lessons */}
+          {/* Recommended Lessons - now with bigger cards */}
           <div className="recom-lessons">
             <h2>Recommended Lessons</h2>
-            <Link to="/lessons/1" className="lessons">
-              <h6>How to budget pocket money?</h6>
-              <FaChevronRight />
-            </Link>
-            <Link to="/lessons/2" className="lessons">
-              <h6>Saving for goals</h6>
-              <FaChevronRight />
-            </Link>
-            <Link to="/lessons/3" className="lessons">
-              <h6>Understanding needs vs wants</h6>
-              <FaChevronRight />
-            </Link>
+            <div className="lesson-cards">
+              <Link to="/lessons/1" className="lesson-card">
+                <h4>💰 How to budget pocket money?</h4>
+                <p>Learn simple ways to track and spend wisely.</p>
+                <FaChevronRight />
+              </Link>
+              <Link to="/lessons/2" className="lesson-card">
+                <h4>🎯 Saving for goals</h4>
+                <p>Plan for short and long term financial goals.</p>
+                <FaChevronRight />
+              </Link>
+              <Link to="/lessons/3" className="lesson-card">
+                <h4>⚖ Needs vs Wants</h4>
+                <p>Understand the difference to control spending.</p>
+                <FaChevronRight />
+              </Link>
+            </div>
           </div>
 
           {/* Notifications Preview */}
@@ -154,6 +165,67 @@ const HomePage = () => {
             ) : (
               <p>No notifications</p>
             )}
+          </div>
+        </div>
+
+        {/* Investment Awareness Section with 4 bigger cards - NOW WITH ICONS */}
+        <div className="learn-investments">
+          <h2>Investment Awareness</h2>
+          <div className="investment-cards">
+            {/* Stocks Card */}
+            <div className="investment-card big-card">
+              {/* Using FaChartLine for Stock Market */}
+              <div className="card-icon">
+                <FaChartLine />
+              </div>
+              <h4>NEPSE Stock Basics</h4>
+              <p>Understand stock market fundamentals and key terms.</p>
+              <Link to="/investments/stocks" className="learn-btn">
+                Learn More
+              </Link>
+            </div>
+
+            {/* Mutual Funds Card */}
+            <div className="investment-card big-card">
+              {/* Using FaWallet for Mutual Funds/Savings */}
+              <div className="card-icon">
+                <FaWallet />
+              </div>
+              <h4>Mutual Funds Info</h4>
+              <p>
+                Explore equity, debt, and hybrid funds with performance
+                insights.
+              </p>
+              <Link to="/investments/mutual-funds" className="learn-btn">
+                Learn More
+              </Link>
+            </div>
+
+            {/* SIP Calculator Card */}
+            <div className="investment-card big-card">
+              {/* Using AiFillCalculator for SIP Calculator */}
+              <div className="card-icon">
+                <AiFillCalculator />
+              </div>
+              <h4>SIP Calculator</h4>
+              <p>Simulate monthly investments and plan your future wealth.</p>
+              <Link to="/investments/sip" className="learn-btn">
+                Learn More
+              </Link>
+            </div>
+
+            {/* Insurance Card */}
+            <div className="investment-card big-card">
+              {/* Using FaShieldAlt for Insurance */}
+              <div className="card-icon">
+                <FaShieldAlt />
+              </div>
+              <h4>Insurance Basics</h4>
+              <p>Learn how life and health insurance protect your future.</p>
+              <Link to="/investments/insurance" className="learn-btn">
+                Learn More
+              </Link>
+            </div>
           </div>
         </div>
 
