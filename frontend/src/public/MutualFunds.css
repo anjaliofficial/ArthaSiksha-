@@ -1,0 +1,145 @@
+/* Mutual Funds Global Styles */
+.mutualfunds-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #eef4f7;
+}
+
+.mutualfunds-main {
+  flex-grow: 1;
+  padding: 50px 80px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.mutualfunds-main h1 {
+  font-size: 34px;
+  margin-bottom: 20px;
+  color: #00695c;
+  font-weight: 600;
+}
+
+.mutualfunds-main p {
+  font-size: 16px;
+  margin-bottom: 25px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.mutualfunds-section {
+  background: #fff;
+  padding: 25px 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.mutualfunds-section h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #00695c;
+}
+
+.mutualfunds-section ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  color: #555;
+}
+
+.mutualfunds-section li {
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+/* Resource Cards */
+.resource-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.resource-card {
+  flex: 1 1 220px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: black;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.resource-card h4 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #00695c;
+}
+
+.resource-card p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Examples */
+.examples-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.example-box {
+  flex: 1 1 250px;
+  background: #e0f2f1;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.example-box h4 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #004d40;
+}
+
+.example-box p {
+  font-size: 15px;
+  color: #333;
+}
+
+/* CTA Button */
+.learn-btn {
+  display: inline-block;
+  text-decoration: none;
+  background-color: #00695c;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.learn-btn:hover {
+  background-color: #004d40;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mutualfunds-main {
+    padding: 30px 20px;
+  }
+
+  .resource-cards,
+  .examples-container {
+    flex-direction: column;
+  }
+}

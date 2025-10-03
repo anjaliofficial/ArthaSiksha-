@@ -7,6 +7,7 @@ import "@fontsource/inter/600.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
+// Lazy Imports
 const HomePage = lazy(() => import("./public/HomePage"));
 const Login = lazy(() => import("./public/Login"));
 const Signup = lazy(() => import("./public/Signup"));
@@ -29,7 +30,12 @@ const ArticlePage = lazy(() => import("./public/ArticlePage"));
 const ArticlesPageUser = lazy(() => import("./public/ArticlesPageUser"));
 const ArticleDetailUser = lazy(() => import("./public/ArticleDetailUser"));
 const QuizPageUser = lazy(() => import("./public/QuizPageUser"));
-const QuizDetailUser = lazy(() => import("./public/QuizDetailUser"))
+const QuizDetailUser = lazy(() => import("./public/QuizDetailUser"));
+const Stocks = lazy(() => import("./public/Stocks"));
+const MutualFunds = lazy(() => import("./public/MutualFunds"));
+const SIPCalculator = lazy(() => import("./public/SIPCalculator"));
+const Insurance = lazy(() => import("./public/Insurance"));
+const AdminInsurancePage = lazy(() => import("./public/AdminInsurancePage"));
 
 function App() {
   return (
@@ -44,8 +50,7 @@ function App() {
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/" element={<LandingPage />} />
-          <Route path="/profile" element={<Profile />} />{" "}
-          {/* ✅ Use capital P */}
+          <Route path="/profile" element={<Profile />} />
           <Route path="/editprofile" element={<EditProfile />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/admindashboard" element={<AdminDashboard />} />
@@ -60,6 +65,12 @@ function App() {
           <Route path="/articles/:id" element={<ArticleDetailUser />} />
           <Route path="/quizzes" element={<QuizPageUser />} />
           <Route path="/quiz/:id" element={<QuizDetailUser />} />
+          <Route path="/investments/stocks" element={<Stocks />} />
+          <Route path="/investments/mutual-funds" element={<MutualFunds />} />
+          <Route path="/investments/sip" element={<SIPCalculator />} />
+          <Route path="/investments/insurance" element={<Insurance />} />
+          {/* Admin Route for the Content Editor */}
+          <Route path="/admin/insurance" element={<AdminInsurancePage />} />
         </Routes>
       </Suspense>
     </Router>

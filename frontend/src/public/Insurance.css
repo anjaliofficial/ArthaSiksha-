@@ -1,0 +1,105 @@
+.insurance-page {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.insurance-search-top {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.insurance-search-top input {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.insurance-search-top button {
+  padding: 8px 15px;
+  border-radius: 5px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.insurance-main h1 {
+  margin-bottom: 20px;
+}
+
+.insurance-section {
+  border: 1px solid #e2e8f0;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  background-color: #f9fafb;
+}
+
+.dynamic-content-body img {
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+}
+
+.average-rating {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.comments-list {
+  margin-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+}
+
+.comment-item {
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.comment-stars {
+  color: #facc15;
+  font-size: 14px;
+}
+
+.feedback-section {
+  margin-top: 15px;
+}
+
+.feedback-section textarea {
+  width: 100%;
+  min-height: 60px;
+  margin-top: 5px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.feedback-section button {
+  margin-top: 5px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 4px;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.rating-stars .star {
+  color: #cbd5e1;
+  font-size: 20px;
+}
+
+.rating-stars .star.filled {
+  color: #facc15;
+}
