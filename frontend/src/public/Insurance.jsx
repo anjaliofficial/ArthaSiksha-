@@ -1,288 +1,236 @@
-import React, { useState, useEffect } from "react";
+// File: src/public/Insurance.jsx
+
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 import NavbarAfterLogin from "../components/navbarAfterLogin";
 import Footer from "../components/footer";
-import axios from "axios";
-import "./Insurance.css";
+// ... other imports ...
 
+// Configuration
 axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.withCredentials = true;
 
 const InsurancePage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [dynamicSections, setDynamicSections] = useState([]);
-  const [feedbackData, setFeedbackData] = useState({});
-  const [sectionFeedback, setSectionFeedback] = useState({});
+  const navigate = useNavigate();
+  const [sections, setSections] = useState([]);
+  const [selectedSectionId, setSelectedSectionId] = useState(null);
+  const [feedback, setFeedback] = useState({ comments: [], avgRating: 0 });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  /**
-   * Renders HTML content and replaces custom file paths with actual links/images.
-   * FIX: Ensures the image/file URL path is constructed correctly for the user page.
-   */
-  const renderContentWithMedia = (htmlContent) => {
-    // Regex to find paths like 'uploads/insurance_files/file.ext'
-    const mediaRegex =
-      /(?<!src=["'])(?<!href=["'])(\buploads\/insurance_files\/[^ ]+\.(?:png|jpe?g|gif|pdf|docx|txt)\b)/gi;
-
-    let renderedHtml = htmlContent.replace(mediaRegex, (match) => {
-      // Ensure the match path doesn't start with a slash if it's relative
-      const cleanMatch = match.replace(/^\//, "");
-      // Construct the full public URL
-      const publicUrl = `http://localhost:3000/${cleanMatch}`;
-
-      if (match.match(/\.(png|jpe?g|gif)$/i)) {
-        // Return an image tag for image files
-        return `<img src="${publicUrl}" alt="Inline Media" style="max-width: 100%; height: auto; border: 1px solid #ccc; display: block; margin: 10px 0;" onerror="this.onerror=null;this.src='https://placehold.co/150x100/A0A0A0/ffffff?text=Image+Error';" />`;
-      }
-      // Return a hyperlink for other file types
-      return `<a href="${publicUrl}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">[Download File: ${match
-        .split("/")
-        .pop()}]</a>`;
-    });
-
-    return { __html: renderedHtml };
-  };
-
-  // --- Fetch Sections & Feedback ---
-  useEffect(() => {
-    const fetchSections = async () => {
+  // --- Authentication ---
+  const checkToken = useCallback(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
       try {
-        const res = await axios.get("/api/insurance-sections");
-        setDynamicSections(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Error fetching sections:", err);
-        setDynamicSections([]);
+        jwtDecode(token);
+      } catch (e) {
+        console.error("Invalid token:", e);
+        // navigate("/login"); // Optional: redirect on invalid token
       }
-    };
-
-    const fetchFeedback = async () => {
-      try {
-        // FIX: Corrected endpoint to /api/insurance-sections/feedback
-        const res = await axios.get("/api/insurance-sections/feedback");
-        setSectionFeedback(res.data || {});
-      } catch (err) {
-        console.error(
-          "Error fetching feedback:",
-          err.response?.data || err.message
-        );
-      }
-    };
-
-    fetchSections();
-    fetchFeedback();
+    }
   }, []);
 
-  // --- Search Logic ---
-  const handleSearch = () => {
-    const query = searchTerm.toLowerCase();
-    const matched = dynamicSections.find((section) =>
-      section.title.toLowerCase().includes(query)
-    );
-    if (matched) {
-      const element = document.getElementById(`dynamic-${matched.id}`);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-        element.style.transition = "background-color 0.5s";
-        element.style.backgroundColor = "#fff8c6";
-        setTimeout(() => (element.style.backgroundColor = "transparent"), 2000);
-      }
-    } else {
-      // FIX: Replaced alert()
-      console.warn(`No section title found for "${searchTerm}"`);
-    }
-  };
-
-  // --- Submit Feedback ---
-  const submitFeedback = async (sectionId) => {
-    const data = feedbackData[sectionId];
-    // FIX: Replaced alert() with console error/warning
-    if (!data || !data.comment?.trim() || !data.rating) {
-      console.error(
-        `Feedback submission failed for section ${sectionId}: Please enter a comment and select a rating.`
-      );
+  // 1. FETCH FEEDBACK
+  const fetchFeedback = useCallback(async (id) => {
+    if (!id) {
+      setFeedback({ comments: [], avgRating: 0 });
       return;
     }
 
     try {
-      // FIX: Corrected endpoint to /api/insurance-sections/:id/feedback
-      await axios.post(`/api/insurance-sections/${sectionId}/feedback`, data);
-
-      // Optimistically update the local state
-      setSectionFeedback((prev) => {
-        const prevComments = prev[sectionId]?.comments || [];
-        // Add the new comment/rating to the front
-        const newComments = [
-          {
-            comment: data.comment,
-            rating: data.rating,
-            created_at: new Date().toISOString(),
-          },
-          ...prevComments,
-        ];
-
-        const totalRating = newComments.reduce((sum, c) => sum + c.rating, 0);
-        const avgRating = totalRating / newComments.length;
-
-        return {
-          ...prev,
-          [sectionId]: {
-            comments: newComments,
-            avgRating,
-          },
-        };
-      });
-
-      // Clear the input form fields for the submitted section
-      setFeedbackData((prev) => {
-        const newState = { ...prev };
-        delete newState[sectionId];
-        return newState;
-      });
-      console.log(`Feedback submitted successfully for section ${sectionId}.`);
+      // NOTE: This route should only return public/sanitized data (no user name/email)
+      const res = await axios.get(`/api/insurance-sections/${id}/feedback`);
+      setFeedback(res.data);
     } catch (err) {
-      console.error(
-        "Error submitting feedback:",
-        err.response?.data || err.message
+      console.error("Error fetching feedback:", err.message);
+      setFeedback({ comments: [], avgRating: 0 });
+    }
+  }, []);
+
+  // 2. HANDLER: SELECT SECTION
+  const handleSectionSelect = useCallback(
+    (id) => {
+      setSelectedSectionId(id);
+      fetchFeedback(id); // Triggers feedback fetch
+    },
+    [fetchFeedback]
+  );
+
+  // 3. FETCH SECTIONS
+  const fetchSections = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get("/api/insurance-sections");
+      const fetchedSections = Array.isArray(res.data) ? res.data : [];
+      setSections(fetchedSections);
+
+      if (fetchedSections.length > 0 && selectedSectionId === null) {
+        handleSectionSelect(fetchedSections[0].id);
+      }
+    } catch (err) {
+      console.error("Error fetching sections:", err);
+      setError(
+        "Failed to load insurance topics. Check server status or database data."
       );
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedSectionId, handleSectionSelect]);
+
+  // --- Handlers ---
+
+  const handleSubmitFeedback = async (e) => {
+    e.preventDefault();
+    const rating = parseInt(e.target.rating.value, 10);
+    const comment = e.target.comment.value;
+    const token = localStorage.getItem("token");
+
+    if (!selectedSectionId) {
+      setError("Please select a topic before submitting feedback.");
+      return;
+    }
+    if (!token) {
+      setError("You must be logged in to submit feedback.");
+      return;
+    }
+
+    let name = null;
+    let email = null;
+
+    // 🟢 CRITICAL CHANGE: Decode token to get user profile data
+    try {
+      const decoded = jwtDecode(token);
+      // Assuming your token payload includes name and email fields
+      name = decoded.name || decoded.userName || null;
+      email = decoded.email || null;
+    } catch (e) {
+      console.error("Failed to decode token for feedback submission:", e);
+      setError("Invalid user session. Please log in again.");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `/api/insurance-sections/${selectedSectionId}/feedback`,
+        // 🟢 Include name and email in the POST payload
+        { rating, comment, name, email }
+      );
+      fetchFeedback(selectedSectionId);
+      e.target.reset();
+      alert("Feedback submitted successfully! Thank you.");
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Failed to submit feedback. Check authentication."
+      );
+      console.error("Submission error:", err);
     }
   };
+
+  // --- Effects ---
+  useEffect(() => {
+    checkToken();
+    fetchSections();
+  }, [checkToken, fetchSections]);
+
+  // Derived State
+  const currentSection = useMemo(() => {
+    return sections.find((s) => s.id === selectedSectionId);
+  }, [sections, selectedSectionId]);
+
+  // --- Rendering (Unchanged) ---
+  if (loading && sections.length === 0)
+    return <div className="loading-state">Loading Insurance Topics...</div>;
+  if (error && sections.length === 0)
+    return <div className="error-state">{error}</div>;
 
   return (
     <div className="insurance-page">
       <NavbarAfterLogin />
 
-      {/* Search Bar */}
-      <div className="insurance-search-top">
-        <input
-          type="text"
-          placeholder="Search topics managed by the Admin..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-        />
-        <button onClick={handleSearch}>Search</button>
-      </div>
+      <div className="main-content container">
+        <h1>Our Insurance Policies</h1>
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      <div className="insurance-main">
-        <h1>🛡️ Insurance Knowledge Hub</h1>
-
-        {dynamicSections.length === 0 ? (
-          <p className="loading-message">
-            Loading content or no sections have been added by the administrator
-            yet.
-          </p>
-        ) : (
-          dynamicSections.map((section) => (
-            <section
-              key={section.id}
-              id={`dynamic-${section.id}`}
-              className="insurance-section dynamic-content"
-            >
-              <h2>{section.title}</h2>
-
-              <div
-                className="dynamic-content-body"
-                dangerouslySetInnerHTML={renderContentWithMedia(
-                  section.content
-                )}
-              />
-
-              {/* Average Rating */}
-              <div className="average-rating">
-                Average Rating:{" "}
-                <span className="rating-value">
-                  {sectionFeedback[section.id]?.avgRating
-                    ? sectionFeedback[section.id].avgRating.toFixed(1)
-                    : "No ratings yet"}
-                </span>
-              </div>
-
-              {/* Existing Comments */}
-              <div className="comments-list">
-                <h4 className="comments-header">User Feedback</h4>
-                {(sectionFeedback[section.id]?.comments || []).length > 0 ? (
-                  (sectionFeedback[section.id]?.comments || []).map(
-                    (c, idx) => (
-                      <div
-                        key={`${section.id}-${idx}`}
-                        className="comment-item"
-                      >
-                        <div className="comment-stars">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <span
-                              key={star}
-                              className={star <= c.rating ? "filled" : ""}
-                            >
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                        <p className="comment-text">{c.comment}</p>
-                        <small className="comment-date">
-                          {c.created_at
-                            ? new Date(c.created_at).toLocaleDateString()
-                            : "N/A"}
-                        </small>
-                      </div>
-                    )
-                  )
-                ) : (
-                  <p className="no-comments">
-                    Be the first to leave a comment!
-                  </p>
-                )}
-              </div>
-
-              {/* Leave Feedback Form */}
-              <div className="feedback-section">
-                <h4>Leave Feedback / Rating</h4>
-                <div className="rating-stars">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className={`star ${
-                        (feedbackData[section.id]?.rating || 0) >= star
-                          ? "filled"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        setFeedbackData((prev) => ({
-                          ...prev,
-                          [section.id]: {
-                            ...prev[section.id],
-                            rating: star,
-                            comment: prev[section.id]?.comment || "",
-                          },
-                        }))
-                      }
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <textarea
-                  placeholder="Write your comment..."
-                  value={feedbackData[section.id]?.comment || ""}
-                  onChange={(e) =>
-                    setFeedbackData((prev) => ({
-                      ...prev,
-                      [section.id]: {
-                        ...prev[section.id],
-                        comment: e.target.value,
-                        rating: prev[section.id]?.rating || 0,
-                      },
-                    }))
-                  }
-                />
-                <button
-                  onClick={() => submitFeedback(section.id)}
-                  disabled={!feedbackData[section.id]?.rating}
+        <div className="insurance-layout">
+          {/* --- Left Column: Section List --- */}
+          <div className="section-list-panel">
+            <h2>Topics</h2>
+            <ul className="section-list">
+              {sections.map((section) => (
+                <li
+                  key={section.id}
+                  className={section.id === selectedSectionId ? "active" : ""}
+                  onClick={() => handleSectionSelect(section.id)}
                 >
-                  Submit Feedback
-                </button>
-              </div>
-            </section>
-          ))
-        )}
+                  {section.title}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* --- Right Column: Content & Feedback --- */}
+          <div className="section-detail-panel">
+            {currentSection ? (
+              <>
+                <h2>{currentSection.title}</h2>
+                <div
+                  className="section-content"
+                  dangerouslySetInnerHTML={{ __html: currentSection.content }}
+                />
+
+                {/* --- Feedback Display --- */}
+                <div className="feedback-area">
+                  <h3>User Feedback (Avg Rating: {feedback.avgRating}/5)</h3>
+
+                  <div className="comments-list">
+                    {feedback.comments.length > 0 ? (
+                      feedback.comments.map((comment, index) => (
+                        <div key={index} className="comment-item">
+                          <strong>Rating: {comment.rating}/5</strong>
+                          <p>{comment.comment}</p>
+                          <small>
+                            {new Date(comment.created_at).toLocaleDateString()}
+                          </small>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No feedback yet. Be the first!</p>
+                    )}
+                  </div>
+
+                  {/* Submission Form */}
+                  <form
+                    onSubmit={handleSubmitFeedback}
+                    className="feedback-form"
+                  >
+                    <h4>Submit Your Feedback</h4>
+                    <label htmlFor="rating">Rating (1-5):</label>
+                    <input
+                      type="number"
+                      id="rating"
+                      name="rating"
+                      min="1"
+                      max="5"
+                      required
+                    />
+                    <label htmlFor="comment">Comment (Optional):</label>
+                    <textarea id="comment" name="comment"></textarea>
+                    <button type="submit">Submit</button>
+                  </form>
+                </div>
+              </>
+            ) : (
+              <p className="select-prompt">
+                Please select an insurance topic to view its details.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       <Footer />

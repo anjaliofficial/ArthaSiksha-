@@ -1,0 +1,649 @@
+/*
+ * File: AdminInsurance.css
+ * Provides clean, professional styling for the admin content management interface.
+ */
+
+:root {
+    /* Primary Theme Colors: Clean Blue Palette */
+    --color-primary: #007bff; /* Main Accent Blue */
+    --color-primary-light: #e9f7ff; /* Light Primary Tint */
+    --color-success: #28a745; /* Green */
+    --color-danger: #dc3545; /* Red */
+    --color-warning: #ffc107; /* Amber/Yellow */
+    --color-info: #17a2b8; /* Cyan for Refresh Button */
+
+    /* Neutral Colors: Light Mode */
+    --color-background-main: #f8f9fa; /* Main background (Light gray) */
+    --color-card-background: #ffffff; /* Card/Panel background (White) */
+    --color-text-dark: #343a40; /* Dark text for visibility */
+    --color-text-muted: #6c757d; /* Muted text for details */
+    --color-border-soft: #e9ecef; /* Very light border lines */
+    --color-shadow-soft: rgba(0, 0, 0, 0.08); /* Soft shadow */
+    --border-radius: 8px;
+    --border-radius-small: 6px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| BASE STYLES & LAYOUT
+|--------------------------------------------------------------------------
+*/
+
+.admin-insurance-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--color-background-main);
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-dark);
+}
+
+.insurance-main-content {
+    flex-grow: 1;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* --- Header --- */
+.admin-header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.admin-header-area h1 {
+    font-size: 2rem;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.back-to-dashboard-btn {
+    border: none;
+    border-radius: var(--border-radius-small);
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: var(--color-text-muted);
+    color: var(--color-card-background);
+    transition: background 0.3s;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-to-dashboard-btn:hover {
+    background: #5a6268;
+}
+
+/* --- Status Message --- */
+.status-message {
+    min-width: 250px;
+    text-align: center;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.status-message.success {
+    border: 1px solid var(--color-success);
+    background-color: #d4edda;
+    color: var(--color-success);
+}
+
+.status-message.error {
+    border: 1px solid var(--color-danger);
+    background-color: #f8d7da;
+    color: var(--color-danger);
+}
+
+/* --- Tabs --- */
+.admin-tabs {
+    display: flex;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--color-border-soft);
+}
+
+.tab-btn {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.tab-btn:hover {
+    color: var(--color-primary);
+}
+
+.tab-btn.active {
+    color: var(--color-primary);
+    border-bottom: 3px solid var(--color-primary);
+    font-weight: 600;
+}
+
+.unresolved-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 10;
+    border-radius: 50%;
+    padding: 2px 7px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    background-color: var(--color-warning);
+    color: var(--color-text-dark);
+}
+
+/*
+|--------------------------------------------------------------------------
+| CORE LAYOUT: DYNAMIC GRID 
+|--------------------------------------------------------------------------
+*/
+.admin-grid-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    transition: grid-template-columns 0.3s ease-in-out;
+}
+
+/* --- Left Panel (List/Navigation) --- */
+.admin-list-panel {
+    grid-column: 1;
+    background: var(--color-card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px var(--color-shadow-soft);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* CONTENT MODE: List hides, Editor takes full width */
+.admin-grid-layout.full-page-mode-content .admin-list-panel {
+    /* If you want the list panel to disappear when editing content for a focused view, uncomment this */
+    /* display: none; */
+}
+
+/* --- Right Panel (Editor/Detail) --- */
+.admin-editor-area {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 700px;
+    background: var(--color-card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px var(--color-shadow-soft);
+    padding: 30px;
+}
+
+/* Editor takes full width when the list panel is hidden */
+.admin-grid-layout.full-page-mode-content .admin-editor-area {
+    /* If you uncommented the 'display: none' above, uncomment this to make the editor full width */
+    /* grid-column: 1 / -1; */
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CONTENT MANAGEMENT STYLES (Content Tab)
+|--------------------------------------------------------------------------
+*/
+
+/* --- List Panel Header (shared with feedback) --- */
+.list-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.list-panel-header h2 {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.new-section-btn {
+    border: none;
+    border-radius: var(--border-radius-small);
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: var(--color-success);
+    color: var(--color-card-background);
+    transition: background 0.3s;
+    font-weight: 600;
+}
+
+.new-section-btn:hover {
+    background: #218838;
+}
+
+/* --- Content List (Topics) --- */
+.section-title-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.section-title-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-border-soft);
+    color: var(--color-text-dark);
+    cursor: pointer;
+    transition: background 0.2s, border-left 0.2s;
+}
+
+.section-title-list li:last-child {
+    border-bottom: none;
+}
+
+.section-title-list li:hover {
+    background: var(--color-background-main);
+}
+
+.section-title-list li.active {
+    padding-left: 15px;
+    font-weight: bold;
+    background: var(--color-primary-light);
+    border-left: 5px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.section-title-list .list-edit-icon {
+    font-size: 0.9rem;
+    opacity: 0.5;
+}
+
+/* --- Content Editor Form (Topic Editor) --- */
+.content-admin-form {
+    margin-bottom: 25px;
+}
+
+.editor-title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-soft);
+    color: var(--color-text-dark);
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+.content-admin-form input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--color-card-background);
+    color: var(--color-text-dark);
+    border: 1px solid var(--color-border-soft);
+    padding: 12px;
+    border-radius: var(--border-radius-small);
+    margin-bottom: 20px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.content-admin-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.quill-loading-placeholder {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--color-border-soft);
+    background: var(--color-background-main);
+    color: var(--color-text-muted);
+    border-radius: var(--border-radius-small);
+}
+
+/* Quill-specific adjustments for light mode */
+.ql-editor {
+    min-height: 250px;
+    background-color: var(--color-card-background);
+    color: var(--color-text-dark);
+}
+.ql-toolbar {
+    background-color: #f1f3f5;
+    border-color: var(--color-border-soft) !important;
+    border-radius: var(--border-radius-small) var(--border-radius-small) 0 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.submit-btn, .cancel-btn, .delete-btn, .refresh-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.submit-btn {
+    background: var(--color-primary);
+    color: var(--color-card-background);
+}
+.submit-btn:hover {
+    background: #0056b3;
+}
+
+.cancel-btn {
+    background: var(--color-text-muted);
+    color: var(--color-card-background);
+}
+.cancel-btn:hover {
+    background: #5a6268;
+}
+
+.delete-btn {
+    background: var(--color-danger);
+    color: var(--color-card-background);
+}
+.delete-btn:hover {
+    background: #c82333;
+}
+
+/* --- Content Preview --- */
+.section-separator {
+    height: 1px;
+    background-color: var(--color-border-soft);
+    margin: 30px 0;
+}
+
+.section-display-area h3 {
+    font-size: 1.4rem;
+    color: var(--color-text-dark);
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-soft);
+    margin-bottom: 20px;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px 0;
+}
+
+.preview-header h4 {
+    color: var(--color-primary);
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.section-content-preview {
+    padding: 20px;
+    border: 1px solid var(--color-border-soft);
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius-small);
+    line-height: 1.6;
+    min-height: 150px;
+    /* Styles for rich content inside the preview */
+}
+.section-content-preview img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    display: block;
+    margin: 10px 0;
+}
+
+.no-preview-message {
+    color: var(--color-text-muted);
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed var(--color-border-soft);
+    border-radius: var(--border-radius-small);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| FEEDBACK MANAGEMENT STYLES (Feedback Tab)
+|--------------------------------------------------------------------------
+*/
+
+/* --- Feedback List --- */
+.feedback-summary {
+    color: var(--color-text-muted);
+    margin-bottom: 15px;
+}
+
+.refresh-btn {
+    background: var(--color-info); /* Cyan for refresh */
+    color: var(--color-card-background);
+}
+.refresh-btn:hover {
+    background: #0f6674;
+}
+
+.feedback-item-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feedback-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto; /* Details | Title | Status */
+    gap: 10px;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-border-soft);
+    color: var(--color-text-dark);
+    cursor: pointer;
+    transition: background 0.2s, border-left 0.2s;
+}
+
+.feedback-item:hover {
+    background: var(--color-background-main);
+}
+
+.feedback-item.active {
+    background: var(--color-primary-light);
+    border-left: 5px solid var(--color-primary);
+}
+
+.feedback-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.feedback-details strong {
+    font-weight: 600;
+}
+
+.feedback-details small, .feedback-title {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+.feedback-item.active .feedback-details small,
+.feedback-item.active .feedback-title {
+    color: var(--color-text-dark);
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: var(--border-radius-small);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.status-new {
+    background-color: #fce8db; /* Light orange/red */
+    color: var(--color-danger);
+}
+
+.status-resolved {
+    background-color: #d4edda; /* Light green */
+    color: var(--color-success);
+}
+
+/* --- Feedback Detail View --- */
+.feedback-detail-view h2 {
+    font-size: 1.5rem;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-soft);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.feedback-detail-card {
+    padding: 25px;
+    border: 1px solid var(--color-border-soft);
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius);
+    line-height: 1.6;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.detail-header h4 {
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.feedback-detail-card p {
+    margin-bottom: 15px;
+}
+
+.feedback-detail-card strong {
+    margin-right: 5px;
+    color: var(--color-text-dark);
+}
+
+.detail-message {
+    padding: 15px;
+    border-left: 5px solid var(--color-warning);
+    background-color: #fffde7; /* Very light yellow highlight */
+    color: var(--color-text-dark);
+    border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+}
+
+.detail-timestamp {
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border-soft);
+    padding-top: 10px;
+    margin-top: 20px !important;
+    font-size: 0.9rem;
+}
+
+.detail-actions {
+    margin-top: 20px;
+}
+
+/* Resolve Button Styling */
+.resolve-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    color: var(--color-card-background);
+}
+
+.resolve-btn.status-new {
+    background: var(--color-success);
+}
+.resolve-btn.status-new:hover {
+    background: #218838;
+}
+
+.resolve-btn.status-resolved {
+    background: var(--color-warning);
+    color: var(--color-text-dark);
+}
+.resolve-btn.status-resolved:hover {
+    background: #e0a200;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVENESS
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 900px) {
+    .insurance-main-content {
+        padding: 15px;
+    }
+
+    .admin-header-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .admin-grid-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    /* Force list panel to be visible but shrink it for mobile scrolling */
+    .admin-grid-layout .admin-list-panel {
+        display: block !important;
+        height: 300px; /* fixed height on mobile */
+        max-height: 40vh;
+    }
+
+    .admin-editor-area {
+        min-height: 500px;
+        padding: 20px;
+    }
+
+    /* Ensure editor still spans full width on mobile regardless of tab */
+    .admin-editor-area {
+        grid-column: 1 / -1 !important;
+    }
+
+    .feedback-item {
+        grid-template-columns: 1fr; /* Stack elements */
+        gap: 5px;
+        align-items: flex-start;
+    }
+
+    .feedback-details {
+        flex-direction: row;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .feedback-title {
+        order: 3; /* Move title below details */
+        width: 100%;
+    }
+
+    .status-badge {
+        order: 2;
+        align-self: flex-start;
+    }
+}
